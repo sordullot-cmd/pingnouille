@@ -30,6 +30,27 @@
  * 3. La graisse fait partie du cran : elle donne de la présence sans prendre
  *    de place. C'est elle qu'on monte pour insister, pas la taille.
  *
+ * ── D'où viennent les graisses et les interlignes ─────────────────────────
+ * Les deux régimes d'interligne sont ceux de la charte de la référence, qui
+ * n'en publie que deux : **100–110 % pour le display**, **140 % pour le
+ * texte**. Ils remplacent le dégradé continu de 1,0 à 1,4 d'avant, qui ne
+ * suivait aucune règle — chaque cran avait été réglé à l'œil, séparément.
+ *
+ * Les graisses des quatre rôles de TITRE sont déduites, et par un raisonnement
+ * qu'il faut lire en entier. Sur la référence, la hiérarchie d'un écran est
+ * portée par une SECONDE FAMILLE (un display) et non par une taille de plus —
+ * sa charte l'écrit à l'envers : « la police de texte ne doit jamais être plus
+ * grande que Feather Bold quand les deux cohabitent ». Ces deux polices sont
+ * propriétaires et inutilisables ici ; l'app n'a donc qu'une famille, Outfit,
+ * et elle simule cette seconde famille par la GRAISSE — 800 sur les deux crans
+ * héros, 700 sur les deux titres. Rien d'autre ne bouge : les six rôles de
+ * texte gardent la graisse qu'ils avaient, et aucune taille ne change.
+ *
+ * Une conséquence à ne pas défaire : il n'y a pas de `--font-display`. Une
+ * custom property de `font-family` ne transporte pas une graisse, et les rôles
+ * passent ici en styles inline, où il n'y a pas de champ `fontFamily`. Le seul
+ * jumeau côté feuille de style est `--fw-display: 800`.
+ *
  * ── Comment s'en servir ───────────────────────────────────────────────────
  * ```jsx
  * <div style={{ ...TYPE.label, color: T.textSub }}>Résultat net</div>
@@ -109,16 +130,16 @@ export interface TypeRole {
  * de 28 écrase un libellé de 10.
  */
 export const TYPE: Record<keyof typeof TS, TypeRole> = {
-  caption2: { fontSize: TS.caption2, fontWeight: 500, lineHeight: 1.2,  letterSpacing: "0.01em" },
-  caption:  { fontSize: TS.caption,  fontWeight: 500, lineHeight: 1.25, letterSpacing: "0.005em" },
-  label:    { fontSize: TS.label,    fontWeight: 500, lineHeight: 1.3,  letterSpacing: "0" },
-  body:     { fontSize: TS.body,     fontWeight: 400, lineHeight: 1.4,  letterSpacing: "0" },
-  callout:  { fontSize: TS.callout,  fontWeight: 500, lineHeight: 1.35, letterSpacing: "0" },
-  headline: { fontSize: TS.headline, fontWeight: 500, lineHeight: 1.25, letterSpacing: "-0.005em" },
-  title3:   { fontSize: TS.title3,   fontWeight: 500, lineHeight: 1.2,  letterSpacing: "-0.01em" },
-  title2:   { fontSize: TS.title2,   fontWeight: 500, lineHeight: 1.1,  letterSpacing: "-0.015em" },
-  title1:   { fontSize: TS.title1,   fontWeight: 500, lineHeight: 1.08, letterSpacing: "-0.02em" },
-  display:  { fontSize: TS.display,  fontWeight: 500, lineHeight: 1.0,  letterSpacing: "-0.02em" },
+  caption2: { fontSize: TS.caption2, fontWeight: 500, lineHeight: 1.4, letterSpacing: "0.01em" },
+  caption:  { fontSize: TS.caption,  fontWeight: 500, lineHeight: 1.4, letterSpacing: "0.005em" },
+  label:    { fontSize: TS.label,    fontWeight: 500, lineHeight: 1.4, letterSpacing: "0" },
+  body:     { fontSize: TS.body,     fontWeight: 400, lineHeight: 1.4, letterSpacing: "0" },
+  callout:  { fontSize: TS.callout,  fontWeight: 500, lineHeight: 1.4, letterSpacing: "0" },
+  headline: { fontSize: TS.headline, fontWeight: 500, lineHeight: 1.4, letterSpacing: "-0.005em" },
+  title3:   { fontSize: TS.title3,   fontWeight: 700, lineHeight: 1.1, letterSpacing: "-0.01em" },
+  title2:   { fontSize: TS.title2,   fontWeight: 700, lineHeight: 1.1, letterSpacing: "-0.015em" },
+  title1:   { fontSize: TS.title1,   fontWeight: 800, lineHeight: 1.1, letterSpacing: "-0.02em" },
+  display:  { fontSize: TS.display,  fontWeight: 800, lineHeight: 1.0, letterSpacing: "-0.02em" },
 };
 
 /**
@@ -128,3 +149,23 @@ export const TYPE: Record<keyof typeof TS, TypeRole> = {
  * plus étroit que le « 8 ».
  */
 export const TABULAR = { fontVariantNumeric: "tabular-nums" } as const;
+
+/**
+ * Capitales espacées. **La seule valeur d'interlettrage de capitales du
+ * système** : elle ne se décline pas par taille, et si elle est ajustée, elle
+ * l'est ici, donc partout à la fois.
+ *
+ * Où elle s'applique — la liste est FERMÉE :
+ *   - libellé de bouton primaire (graisse 700, posée par le composant) ;
+ *   - en-tête de section d'écran (graisse 700, couleur `T.textSub`) ;
+ *   - en-tête de colonne de tableau et libellé de `Stat` (graisse 500).
+ *
+ * Le 500 des en-têtes de tableau est une exception assumée au 700 : une grille
+ * dense empile des dizaines d'en-têtes, et à 700 ils pèsent plus lourd que les
+ * chiffres qu'ils annoncent — l'inverse de ce qu'on leur demande. La casse et
+ * l'espacement, eux, restent les mêmes.
+ *
+ * Nulle part ailleurs : jamais sur un titre, jamais sur un montant, jamais sur
+ * du texte courant.
+ */
+export const CAPS = { textTransform: "uppercase", letterSpacing: "0.08em" } as const;
