@@ -86,7 +86,7 @@ import { T as BaseT } from "@/lib/ui/tokens";
 import { deepen, dotRing, vignette as vignetteStyle } from "@/lib/ui/color";
 import { PALETTE, GREY } from "@/lib/ui/palette";
 import { Field as DAField, Modal as DAModal, FIELD as DA_FIELD, FIELD_AREA as DA_FIELD_AREA } from "@/components/ui/form";
-import { BTN } from "@/lib/ui/buttons";
+import { BTN, BTN_ICON } from "@/lib/ui/buttons";
 import { accentInk } from "@/lib/ui/accent";
 
 /* Bee, en encre descendue : la teinte brute rend 1,9:1 sur blanc — elle est
@@ -2254,13 +2254,18 @@ function btnDark() {
 function btnGhost() {
   return { ...BTN.md, border: `2px solid ${T.border}`, background: T.white, boxShadow: `0 ${BTN.md.arete}px 0 ${T.border2}`, color: T.text, fontSize: 13, fontWeight: 500, cursor: "pointer", fontFamily: "inherit" };
 }
+/* 44 de côté, et non 32 : c'est le seuil de cible tactile, et ces boutons
+   portent des actions destructrices (supprimer une catégorie, une habitude).
+   Le glyphe, lui, ne grandit pas — on agrandit la CIBLE, pas le dessin, comme
+   la poignée de la feuille basse. Sans fond au repos : dans une carte, un
+   aplat permanent ferait de l'action la chose la plus visible du bloc. */
 function iconBtn() {
-  return { width: 32, height: 32, borderRadius: 8, border: "none", background: "transparent", color: T.textMut, cursor: "pointer", display: "inline-flex", alignItems: "center", justifyContent: "center", flexShrink: 0 };
+  return { ...BTN_ICON.md, border: "none", background: "transparent", color: T.textMut, cursor: "pointer", display: "inline-flex", alignItems: "center", justifyContent: "center", flexShrink: 0 };
 }
-/* Variante des cartes de catégorie. 28 px comme les actions de ligne de la page
-   Comptes (RowIconButton) : l'icône reste petite, la cible reste atteignable. */
+/* Variante des cartes de catégorie : même cible, la distinction ne tenait
+   qu'à quatre pixels que personne ne pouvait viser. */
 function iconBtnSm() {
-  return { width: 28, height: 28, borderRadius: 8, border: "none", background: "transparent", color: T.textMut, cursor: "pointer", display: "inline-flex", alignItems: "center", justifyContent: "center", flexShrink: 0 };
+  return iconBtn();
 }
 // Petit libellé au-dessus des champs de la modale de catégorie.
 const objLbl = { fontSize: 11, color: T.textSub, fontWeight: 500, marginBottom: 4 };
