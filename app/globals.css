@@ -12,12 +12,14 @@
    sur les valeurs ci-dessous. Les dérivés sont calculés en `color-mix` pour
    suivre automatiquement n'importe quelle teinte choisie.
 
-   ESSAI EN COURS : vert #64D741. L'accent violet d'origine (maquette Figma)
-   est conservé comme préréglage « Violet (d'origine) » dans lib/ui/accent.ts —
-   #9C7BFF principale, #7C4DFF secondaire. */
+   DÉFAUT : Macaw #1CB0F6 et son cran foncé Whale #1899D6, les deux teintes de
+   la charte. Le vert #64D741 servi jusqu'ici était la seule couleur de l'app
+   hors charte ; il reste comme préréglage « Vert (d'essai) » dans
+   lib/ui/accent.ts, avec le violet d'origine de la maquette Figma. Un accent
+   déjà enregistré par un utilisateur n'est pas touché. */
 :root {
-  --accent:   #64D741;
-  --accent-2: #4CC72C;
+  --accent:   #1CB0F6;
+  --accent-2: #1899D6;
   /* Aplat d'un item actif (nav) */
   --accent-soft: color-mix(in srgb, var(--accent) 10%, transparent);
   /* Remplissage sous la courbe de portefeuille */
@@ -188,6 +190,10 @@
   --color-blue:   #1CB0F6; /* Macaw    */
   --color-purple: #CE82FF; /* Beetle   */
   --color-cyan:   #7AF0F2; /* Moon Jelly */
+  /* Récompense : XP, série, jalon. Bee est la teinte la plus claire employée
+     comme aplat de la charte — un libellé posé dessus est en encre (12,51:1),
+     jamais en blanc (1,55:1). */
+  --color-recompense: #FFC800; /* Bee */
   /* Accent signature style Kraken — courbe portefeuille & pastilles.
      Dérivé de l'accent de marque (voir le bloc en tête de fichier). */
   --color-kraken:     var(--accent-2);

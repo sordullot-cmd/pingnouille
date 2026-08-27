@@ -28,6 +28,7 @@ import SettingsPage from "@/components/pages/SettingsPage";
 import Sidebar from "@/components/ui/Sidebar";
 import { T } from "@/lib/ui/tokens";
 import { t, useLang } from "@/lib/i18n";
+import { BTN_ICON } from "@/lib/ui/buttons";
 import {
   Mountain,
   Menu as LucideMenu,
@@ -317,15 +318,15 @@ export default function App() {
               className="tr4de-hamburger"
               onClick={() => setMobileNavOpen(true)}
               aria-label="Ouvrir le menu"
-              style={{display:"none",width:36,height:36,borderRadius:8,border:"1px solid "+T.border,background:T.white,color:T.text,cursor:"pointer",alignItems:"center",justifyContent:"center",flexShrink:0,fontFamily:"inherit"}}
+              style={{display:"none",...BTN_ICON.md,border:"2px solid "+T.border,background:T.white,color:T.text,cursor:"pointer",alignItems:"center",justifyContent:"center",flexShrink:0,fontFamily:"inherit"}}
             >
-              <LucideMenu size={18} strokeWidth={1.75} />
+              <LucideMenu size={20} strokeWidth={2} />
             </button>
           </div>
           {/* Pages déjà passées à la nouvelle DA : leurs sections sont des cartes
-              blanches individuelles posées sur le FOND GRIS de la page. Les
-              envelopper dans la carte blanche commune ferait disparaître ce fond
-              et, avec lui, le détachement des cartes. */}
+              individuelles, qui se détachent par leur bordure de 2 et leur arête
+              basse. Les envelopper dans la carte pleine page commune poserait un
+              cadre autour d'un jeu de blocs déjà cadrés. */}
           {(() => { const daPage = DA_PAGES.includes(page); return (
           /* Sur les pages de la DA, ce cadre ne réserve RIEN à gauche : c'est le
              conteneur scrollable qui compense la barre latérale, pour que son
@@ -335,14 +336,19 @@ export default function App() {
           <div style={{flex:1,minHeight:0,padding: daPage ? "0 0 8px 0" : "0 8px 8px 0",paddingLeft: daPage ? 0 : "var(--shell-left, 0px)",display:"flex"}}>
             <div className="scroll-thin" style={{
               background: daPage ? "transparent" : "var(--color-card-bg, #FFFFFF)",
-              border: daPage ? "none" : "1px solid rgba(0, 0, 0, 0.06)",
-              borderRadius: daPage ? 0 : 10,
+              border: daPage ? "none" : `2px solid ${T.border}`,
+              borderRadius: daPage ? 0 : "var(--radius-card)",
               boxShadow: "none",
               /* Gouttière du site — UNE seule valeur, la même à gauche et à
                  droite. Les deux restent exposées en variables : une page peut
                  reprendre la gauche en marge négative pour un bloc pleine
                  largeur, sans la redéclarer en dur. */
-              "--page-gutter-left": "40px",
+              /* 16 — le cran relevé sur la référence (64,5 px sur 1471, soit
+                 4,4 % de la largeur), et la même valeur que la barre du haut :
+                 les deux s'alignaient à 12 px près, ce qui se voyait sur toute
+                 page dont le titre suit le hamburger. 40 n'était sur aucun cran
+                 de la progression d'espacement. */
+              "--page-gutter-left": "16px",
               "--page-gutter": "var(--page-gutter-left)",
               /* Respiration verticale, elle aussi commune à TOUTES les pages :
                  les pages n'ont plus de `paddingTop` à elles, c'est le conteneur

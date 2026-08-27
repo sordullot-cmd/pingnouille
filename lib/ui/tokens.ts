@@ -48,6 +48,8 @@ export const T = {
   purpleBg: "var(--color-purple-bg, color-mix(in srgb, #CE82FF 12%, transparent))",
   purpleBd: "var(--color-purple-bd, color-mix(in srgb, #CE82FF 45%, transparent))",
   cyan:     "var(--color-cyan, #7AF0F2)",
+  /** XP, série, jalon. Bee — à ne porter qu'en encre ou en aplat sous encre. */
+  recompense: "var(--color-recompense, #FFC800)",
   // Accent signature style Kraken — courbe portefeuille & pastilles.
   // La teinte vient de `--accent-*` (bloc « ACCENT DE MARQUE » de globals.css) ;
   // les hex ici ne servent que de repli si la feuille n'est pas chargée.

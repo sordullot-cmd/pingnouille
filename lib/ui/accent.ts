@@ -27,15 +27,29 @@ export type AccentPreset = {
   secondary: string;
 };
 
-/** Valeurs livrées par défaut (essai en cours). */
-export const DEFAULT_ACCENT = "#64D741";
-export const DEFAULT_ACCENT_2 = "#4CC72C";
+/**
+ * Valeurs livrées par défaut : Macaw #1CB0F6 et son cran foncé Whale #1899D6.
+ *
+ * Le vert #64D741 / #4CC72C d'avant était la SEULE couleur de l'app qui ne
+ * vienne pas de la charte — un essai, comme le disait son commentaire. Il reste
+ * comme préréglage nommé, au même titre que le violet d'origine : un accent
+ * déjà choisi par un utilisateur est enregistré en localStorage et n'est pas
+ * touché ; seul le défaut change.
+ *
+ * Macaw plutôt qu'un vert, aussi, parce que le vert a maintenant un emploi
+ * précis : il dit le SUCCÈS. Sur les écrans de la référence, le bleu couvre
+ * presque quatre fois la surface du vert de marque.
+ */
+export const DEFAULT_ACCENT = "#1CB0F6";
+export const DEFAULT_ACCENT_2 = "#1899D6";
 
 export const ACCENT_PRESETS: AccentPreset[] = [
-  { id: "green",  label: "Vert",              primary: DEFAULT_ACCENT, secondary: DEFAULT_ACCENT_2 },
+  { id: "macaw",  label: "Bleu (Macaw)",      primary: DEFAULT_ACCENT, secondary: DEFAULT_ACCENT_2 },
+  // Le vert servi par défaut jusqu'ici : hors charte, gardé comme préréglage.
+  { id: "green",  label: "Vert (d'essai)",    primary: "#64D741", secondary: "#4CC72C" },
   // Accent d'origine de la maquette Figma, conservé tel quel.
   { id: "violet", label: "Violet (d'origine)", primary: "#9C7BFF", secondary: "#7C4DFF" },
-  { id: "blue",   label: "Bleu",              primary: "#3B82F6", secondary: "#2563EB" },
+  { id: "blue",   label: "Bleu vif",          primary: "#3B82F6", secondary: "#2563EB" },
   { id: "amber",  label: "Ambre",             primary: "#F59E0B", secondary: "#EA8C00" },
   // Charbon en principale, doré en secondaire : les éléments actifs restent
   // sobres, la couleur ne parle que dans les courbes et les séries.

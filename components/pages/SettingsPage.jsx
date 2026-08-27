@@ -30,6 +30,7 @@ import { ACCENT_PRESETS, applyAccent, isHexColor, readAccent } from "@/lib/ui/ac
 import { Field as DAField, FIELD as DA_FIELD } from "@/components/ui/form";
 import { FIELD_BG as DA_FIELD_BG } from "@/lib/ui/tokens";
 import { BTN } from "@/lib/ui/buttons";
+import { TYPE } from "@/lib/ui/type";
 
 // Clés locales absentes de BaseT mappées sur des tokens dark-aware.
 const T = { ...BaseT, panel: BaseT.accentBg, borderHover: BaseT.border2 };
@@ -103,10 +104,15 @@ function SettingsNav({ active, setActive }) {
                 key={item.id}
                 onClick={() => setActive(item.id)}
                 style={{
-                  width: "100%", display: "inline-flex", alignItems: "center", gap: 10,
+                  width: "100%", minHeight: 44, display: "inline-flex", alignItems: "center", gap: 10,
                   padding: "8px 10px", borderRadius: "var(--radius-card)", border: "none",
-                  background: isActive ? T.text : "transparent",
-                  color: isActive ? T.white : T.text,
+                  /* L'aplat d'encre noire de l'item actif devient l'aplat de
+                     l'accent, comme dans la barre latérale : dire « ici » avec
+                     du noir n'est plus le langage de la DA, et deux mécaniques
+                     de sélection différentes dans la même app en font deux à
+                     apprendre. Aucune arête — une nav est une surface. */
+                  background: isActive ? "var(--color-nav-active-bg)" : "transparent",
+                  color: isActive ? "var(--color-nav-active-text)" : T.text,
                   fontSize:13, fontWeight: 500,
                   cursor: "pointer", fontFamily: "inherit", textAlign: "left",
                   transition: "background 120ms ease",
@@ -114,7 +120,7 @@ function SettingsNav({ active, setActive }) {
                 onMouseEnter={e => { if (!isActive) e.currentTarget.style.background = T.panel; }}
                 onMouseLeave={e => { if (!isActive) e.currentTarget.style.background = "transparent"; }}
               >
-                <Icon size={14} strokeWidth={1.75} />
+                <Icon size={16} strokeWidth={2} />
                 {item.label}
               </button>
             );
@@ -125,13 +131,17 @@ function SettingsNav({ active, setActive }) {
   );
 }
 
+/* Bordure de 2 et arête de 6 : sur un fond de page devenu blanc, ni l'une ni
+   l'autre ne suffit seule (Swan rend 1,19:1 sur blanc), c'est ENSEMBLE qu'elles
+   découpent le bloc. Padding 16 — le cran de la gouttière d'écran, pour que le
+   contenu d'une carte s'aligne sur la marge de la page. */
 function Card({ children, padded = true }) {
   return (
     <div style={{
       background: T.bg,
-      border: `1px solid ${T.border}`,
+      border: `2px solid ${T.border}`,
       borderRadius: "var(--radius-card)",
-      padding: padded ? 20 : 0,
+      padding: padded ? 16 : 0,
       boxShadow: T.areteCarte,
     }}>
       {children}
@@ -142,8 +152,8 @@ function Card({ children, padded = true }) {
 function CardHeader({ title, subtitle }) {
   return (
     <div style={{ marginBottom: 12 }}>
-      <h2 style={{ fontSize: 14, fontWeight: 600, color: T.text, margin: 0 }}>{title}</h2>
-      {subtitle && <p style={{ fontSize: 12, color: T.textMut, margin: "2px 0 0" }}>{subtitle}</p>}
+      <h2 style={{ ...TYPE.headline, fontWeight: 600, color: T.text, margin: 0 }}>{title}</h2>
+      {subtitle && <p style={{ ...TYPE.label, fontWeight: 400, color: T.textMut, margin: "2px 0 0" }}>{subtitle}</p>}
     </div>
   );
 }
@@ -155,23 +165,29 @@ function PrimaryButton({ children, onClick, disabled, icon: Icon }) {
       disabled={disabled}
       style={{
         ...BTN.md,
-        border: `1px solid ${T.text}`,
-        background: T.text,
-        color: T.white,
-        fontSize: 13,
-        fontWeight: 500,
+        border: "none",
+        /* Le CTA prend la couleur d'ACTION, plus l'aplat d'encre noire, et son
+           libellé l'encre lisible en capitales à 700 — blanc sur Macaw ne rend
+           que 2,44:1. Désactivé, la peau est REMPLACÉE par le creux : une
+           opacité de 0,6 laisse le bouton plus visible que les actions
+           réellement disponibles autour de lui. */
+        background: disabled ? T.surfaceCreuse : T.action,
+        color: disabled ? T.textOff : T.encreSurCouleur,
+        boxShadow: disabled ? "none" : `0 ${BTN.md.arete}px 0 ${T.areteAction}`,
+        fontWeight: 700,
+        textTransform: "uppercase",
+        letterSpacing: "0.08em",
         cursor: disabled ? "not-allowed" : "pointer",
         fontFamily: "inherit",
-        opacity: disabled ? 0.6 : 1,
         display: "inline-flex",
         alignItems: "center",
-        gap: 6,
-        transition: "background 120ms ease",
+        transition: "var(--tr-ui)",
       }}
-      onMouseEnter={e => { if (!disabled) e.currentTarget.style.background = T.textSub; }}
-      onMouseLeave={e => { e.currentTarget.style.background = T.text; }}
+      data-arete={disabled ? undefined : ""}
+      onMouseEnter={e => { if (!disabled) e.currentTarget.style.background = `color-mix(in srgb, ${T.areteAction} 8%, ${T.action})`; }}
+      onMouseLeave={e => { if (!disabled) e.currentTarget.style.background = T.action; }}
     >
-      {Icon && <Icon size={14} strokeWidth={2} />}
+      {Icon && <Icon size={16} strokeWidth={2} />}
       {children}
     </button>
   );
@@ -464,10 +480,15 @@ function SubscriptionSection({ user }) {
   );
 }
 
+/* Ligne de liste : 52 de haut, la valeur relevée sur la carte de liste de la
+   référence (104 px sur une capture de 758). À ne pas confondre avec la ligne
+   de TABLEAU, qui reste à 44 : l'une est un bloc posé, l'autre une rangée de
+   données dans une grille. Les deux passent le seuil de cible tactile. */
 function Row({ label, value, last }) {
   return (
     <div style={{
       display: "flex", alignItems: "center", justifyContent: "space-between",
+      minHeight: 52, gap: 12,
       padding: "12px 0", borderBottom: last ? "none" : `1px solid ${T.border}`,
     }}>
       <span style={{ fontSize: 13, color: T.textSub }}>{label}</span>

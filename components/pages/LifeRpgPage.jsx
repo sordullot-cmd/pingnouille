@@ -87,6 +87,11 @@ import { deepen, dotRing, vignette as vignetteStyle } from "@/lib/ui/color";
 import { PALETTE, GREY } from "@/lib/ui/palette";
 import { Field as DAField, Modal as DAModal, FIELD as DA_FIELD, FIELD_AREA as DA_FIELD_AREA } from "@/components/ui/form";
 import { BTN } from "@/lib/ui/buttons";
+import { accentInk } from "@/lib/ui/accent";
+
+/* Bee, en encre descendue : la teinte brute rend 1,9:1 sur blanc — elle est
+   faite pour être un aplat, pas un texte. `deepen` la garde reconnaissable. */
+const T_RECOMPENSE = "#FFC800";
 // `bg` local (#F5F5F5) = fond subtil : mappé sur la var de survol pour suivre le
 // thème sombre (BaseT.bg vaut #FFFFFF, ce qui ferait perdre le gris léger).
 const T = { ...BaseT, bg: "var(--color-hover-bg, #F5F5F5)" };
@@ -1110,7 +1115,9 @@ function YearGoalCard({ cat, rank, year, yearPct = 0, xp, habits, steps = [], to
                 ].filter(Boolean).join(" · ")
               : `Vers le niveau ${cl.level + 1}`}
           </span>
-          <span style={{ fontVariantNumeric: "tabular-nums" }}>Niveau {cl.level} · {xp} XP</span>
+          <span style={{ fontVariantNumeric: "tabular-nums" }}>
+            Niveau {cl.level} · <span style={{ color: deepen(T_RECOMPENSE), fontWeight: 600 }}>{xp} XP</span>
+          </span>
         </div>
       </div>
 
@@ -2209,27 +2216,43 @@ function AutoTextarea({ value, onChange, placeholder, minRows = 3, style }) {
 
 
 /* ---------- Styles partagés ----------
-   Les pilules reprennent celles des barres d'en-tête de la nouvelle DA (pages
-   Comptes et Calendrier) : 12 px, pas de bordure, l'action principale en aplat
-   d'encre, les secondaires en blanc posé sur l'ombre de pilule. */
+   Les boutons de cette page reprennent la mécanique de la DA : un aplat, une
+   encre, une arête basse. Un seul CTA plein par écran — celui qui porte la
+   couleur —, les autres en blanc cerné. */
+/* L'action qui structure la page : aplat de l'accent, arête d'un cran plus
+   foncé, encre CALCULÉE — l'accent est un réglage libre, blanc sur Macaw ne
+   rend que 2,44:1 et l'encre ne rend que 1,2:1 sur « Charbon & or ». */
 function btnPrimary() {
-  return { display: "inline-flex", alignItems: "center", gap: 6, ...BTN.md, border: "none", background: T.brand, color: T.onSolid, fontSize: 13, fontWeight: 500, cursor: "pointer", fontFamily: "inherit" };
+  return {
+    display: "inline-flex", alignItems: "center", ...BTN.md, border: "none",
+    background: T.brand, color: accentInk(),
+    boxShadow: `0 ${BTN.md.arete}px 0 color-mix(in srgb, var(--accent) 70%, #0D0D0D)`,
+    fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em",
+    cursor: "pointer", fontFamily: "inherit",
+  };
 }
 // Bouton d'action principal d'une modale : même aplat d'accent, cible plus
 // généreuse. (S'appelait `btnDark` du temps où l'action principale était noire.)
 function btnPrimaryLg() {
-  return { display: "inline-flex", alignItems: "center", gap: 6, ...BTN.md, border: "none", background: T.brand, color: T.onSolid, fontSize: 13, fontWeight: 500, cursor: "pointer", fontFamily: "inherit" };
+  return btnPrimary();
 }
-/* Action forte NEUTRE : mêmes métriques que btnPrimary, mais à l'encre au lieu
-   de l'accent. C'est ce qui permet de poser deux actions pleines côte à côte
-   sans qu'elles se disputent le regard — l'accent reste réservé à celle qui
-   structure la page. */
+/* La SECONDE action, celle qui ne structure pas la page. Elle était un aplat
+   d'encre noire posé à côté de l'aplat d'accent : deux pleins côte à côte, dont
+   l'un disait « important » avec du noir — ce qui n'est plus le langage de la
+   DA, où un seul CTA plein par écran porte la couleur. Elle devient la peau
+   `secondary` : blanc, bordure de 2, arête d'un cran sous la bordure (la même
+   couleur que le bord ne montrerait aucune épaisseur). */
 function btnDark() {
-  return { display: "inline-flex", alignItems: "center", gap: 6, ...BTN.md, border: "none", background: T.text, color: T.textInverted, fontSize: 13, fontWeight: 500, cursor: "pointer", fontFamily: "inherit" };
+  return {
+    display: "inline-flex", alignItems: "center", ...BTN.md,
+    border: `2px solid ${T.border}`, background: T.white, color: T.text,
+    boxShadow: `0 ${BTN.md.arete}px 0 ${T.border2}`,
+    fontSize: 13, fontWeight: 500, cursor: "pointer", fontFamily: "inherit",
+  };
 }
 // Bouton secondaire d'une modale.
 function btnGhost() {
-  return { ...BTN.md, border: "none", background: T.white, boxShadow: T.areteBouton, color: T.text, fontSize: 13, fontWeight: 500, cursor: "pointer", fontFamily: "inherit" };
+  return { ...BTN.md, border: `2px solid ${T.border}`, background: T.white, boxShadow: `0 ${BTN.md.arete}px 0 ${T.border2}`, color: T.text, fontSize: 13, fontWeight: 500, cursor: "pointer", fontFamily: "inherit" };
 }
 function iconBtn() {
   return { width: 32, height: 32, borderRadius: 8, border: "none", background: "transparent", color: T.textMut, cursor: "pointer", display: "inline-flex", alignItems: "center", justifyContent: "center", flexShrink: 0 };
