@@ -16,23 +16,33 @@
      à droite, rien d'autre. Le titre était une ligne de chrome de plus à lire
      avant d'arriver au formulaire — le bouton qui a ouvert la fenêtre a déjà
      dit ce qu'elle fait.
-   • Un champ est une PILULE en aplat (rayon 999, `FIELD_BG`), pas un rectangle
-     cerné. Sur un formulaire de dix champs, dix contours faisaient dix
-     rectangles à lire avant d'atteindre le contenu.
-   • Les boutons sont des pilules pleines : `FIELD_BG` en secondaire, encre
-     pleine en primaire. Jamais de contour.
+   • Un champ est un CREUX : aplat `surfaceCreuse`, bordure de 2, rayon 8,
+     hauteur 44. Pas d'arête — un champ se creuse, il ne se pose pas.
+   • Un bouton est l'inverse : un objet POSÉ, donc un aplat plein et une arête
+     basse solide de 4 px d'un ton plus foncé de sa propre famille. Rayon 12.
 
-   L'aplat est exprimé en TRANSPARENCE d'encre (color-mix sur la couleur de
-   texte) et non en gris opaque : il s'inverse tout seul en thème sombre, sans
-   valeur dédiée à maintenir.
+   ── Ce que ce fichier disait avant, et pourquoi il ne le dit plus ─────────
+   La version précédente faisait du champ une PILULE en aplat sans contour, et
+   du bouton une pilule pleine « jamais de contour », en argumentant que dix
+   contours font dix rectangles à lire. L'argument valait contre un cadre gris
+   de 1 px posé sur un fond gris ; il ne tient plus, parce que le fond de page
+   est maintenant BLANC (cf. `components/DashboardNew`). Sur du blanc, un aplat
+   sans contour ne se voit pas — c'est précisément ce que la bordure de 2 et
+   l'arête sont là pour résoudre, et c'est la mécanique entière de la DA.
+
+   La pilule ne disparaît pas pour autant : elle reste la forme des badges, des
+   pastilles de statut et de la barre de progression. Elle n'est simplement
+   plus la forme d'un bouton ni celle d'un champ.
    ========================================================================== */
 
 import React from "react";
 import ReactDOM from "react-dom";
 import { Check, X } from "lucide-react";
 import { T, FIELD_BG, WRITING_BG, HAIRLINE } from "@/lib/ui/tokens";
-import { BTN } from "@/lib/ui/buttons";
+import { BTN, BTN_ICON } from "@/lib/ui/buttons";
+import { TYPE, TS, CAPS } from "@/lib/ui/type";
 import { luminance } from "@/lib/ui/color";
+import { hasFinePointer } from "@/lib/ui/pointer";
 import { backdropDismiss } from "@/lib/hooks/useBackdropDismiss";
 import { useModalExit } from "@/lib/hooks/useModalExit";
 import { useScrollEdges, scrollEdgeShadow } from "@/lib/hooks/useScrollEdges";
@@ -40,61 +50,93 @@ import { useScrollEdges, scrollEdgeShadow } from "@/lib/hooks/useScrollEdges";
 /* ── Contrôles ───────────────────────────────────────────────────────────── */
 
 /**
- * Champ de saisie sur une ligne : pilule en aplat.
+ * Champ de saisie sur une ligne : un CREUX cerné.
+ *
+ * Aplat `surfaceCreuse` (Polar, le remplissage de champ de la référence),
+ * bordure de 2, rayon 8, hauteur 44 — la même que le bouton, pour qu'un champ
+ * et le bouton posé à côté de lui s'alignent. Aucune arête : l'arête dit
+ * « posé », et un champ est le contraire d'un objet posé.
  *
  * `minWidth: 0` et `boxSizing` sont là pour de bonnes raisons : sans le
  * premier, un champ dans une grille refuse de descendre sous sa largeur
  * intrinsèque et fait déborder la ligne ; sans le second, le padding s'ajoute
- * au `width: 100%`.
+ * au `width: 100%` — et depuis que la bordure fait 2 px de chaque côté, il
+ * s'ajouterait 4 px de plus.
  */
 /** @type {import("react").CSSProperties} */
 export const FIELD = {
   width: "100%",
   minWidth: 0,
   boxSizing: "border-box",
-  padding: "9px 14px",
-  borderRadius: 999,
-  border: "none",
-  background: FIELD_BG,
+  minHeight: 44,
+  padding: "0 12px",
+  borderRadius: "var(--radius-field)",
+  borderWidth: 2,
+  borderStyle: "solid",
+  borderColor: T.border,
+  backgroundColor: T.surfaceCreuse,
   color: T.text,
-  fontSize: 13,
+  ...TYPE.body,
   fontFamily: "inherit",
   outline: "none",
 };
 
 /**
- * Zone d'écriture. Rayon 14 et non 999 : une pilule haute de cent pixels n'est
- * plus une pilule, ses extrémités deviennent deux demi-cercles absurdes.
- * Aplat plus dilué aussi — la même valeur d'encre, étalée sur cette hauteur,
- * ne se lit plus comme un creux mais comme un pavé gris.
+ * Zone d'écriture. Aplat plus dilué que le champ d'une ligne : la même valeur
+ * de gris, étalée sur cent pixels de haut, ne se lit plus comme un creux mais
+ * comme un pavé. Le padding revient au format haut/bas puisqu'il y a plusieurs
+ * lignes à cadrer.
  */
 /** @type {import("react").CSSProperties} */
 export const FIELD_AREA = {
   ...FIELD,
-  borderRadius: 14,
-  background: WRITING_BG,
+  backgroundColor: WRITING_BG,
   minHeight: 92,
-  padding: "10px 14px",
+  padding: "10px 12px",
   lineHeight: 1.45,
   resize: "vertical",
 };
 
-/** Variante compacte, pour les lignes de tableau et les barres d'outils. */
+/** Variante compacte, pour les lignes de tableau et les barres d'outils.
+ *  Elle descend sous 44 : ce n'est pas une cible tactile isolée mais un champ
+ *  posé dans une grille déjà dense, où la ligne entière fait la cible. */
 /** @type {import("react").CSSProperties} */
-export const FIELD_SM = { ...FIELD, padding: "6px 12px", fontSize: 12 };
+export const FIELD_SM = { ...FIELD, minHeight: 34, padding: "0 10px", fontSize: TS.label };
 
 /**
- * Anneau de focus. Sans cadre au repos, c'est lui qui dit « c'est ici que ça
- * écrit » — il ne peut donc pas être décoratif. Posé en `box-shadow` pour ne
- * pas déplacer la mise en page d'un pixel à la prise de focus.
+ * Anneau de focus. Posé en `box-shadow` pour ne pas déplacer la mise en page
+ * d'un pixel à la prise de focus — un `outline` pousserait ses voisins.
  */
 export const FIELD_FOCUS_RING =
   "0 0 0 2px color-mix(in srgb, var(--accent) 45%, transparent)";
 
+/**
+ * Au focus, le champ CESSE d'être un creux : sa bordure prend la couleur
+ * d'action et son fond passe au blanc de la surface. C'est ce qui distingue
+ * « ça écrit ici » de « il y a un champ ici », maintenant que le champ porte
+ * déjà un contour au repos.
+ */
 function focusHandlers(onFocus, onBlur) {
   return {
-    onFocus: (e) => { e.currentTarget.style.boxShadow = FIELD_FOCUS_RING; onFocus?.(e); },
-    onBlur: (e) => { e.currentTarget.style.boxShadow = "none"; onBlur?.(e); },
+    onFocus: (e) => {
+      const el = e.currentTarget;
+      /* Valeurs RÉELLES de départ, pas celles de `FIELD` : un champ à qui
+         l'appelant passe sa propre bordure ou son propre fond (une zone
+         d'écriture, un champ en erreur) les perdrait au premier focus. */
+      el.dataset.restBorder = el.style.borderColor;
+      el.dataset.restBg = el.style.backgroundColor;
+      el.style.boxShadow = FIELD_FOCUS_RING;
+      el.style.borderColor = T.action;
+      el.style.backgroundColor = T.white;
+      onFocus?.(e);
+    },
+    onBlur: (e) => {
+      const el = e.currentTarget;
+      el.style.boxShadow = "none";
+      el.style.borderColor = el.dataset.restBorder || T.border;
+      el.style.backgroundColor = el.dataset.restBg || T.surfaceCreuse;
+      onBlur?.(e);
+    },
   };
 }
 
@@ -149,11 +191,44 @@ export function Select({ style = undefined, onFocus = undefined, onBlur = undefi
 /* ── Boutons ─────────────────────────────────────────────────────────────── */
 
 /**
- * Bouton d'action : pilule pleine, jamais de contour.
+ * Les cinq peaux de bouton : un aplat, une encre, une arête.
  *
- * Un bouton désactivé retombe sur l'aplat plutôt que de se contenter d'une
+ * Chaque variante colorée porte l'arête de SA famille — Whale sous Macaw, Tree
+ * Frog sous Owl, Fire Ant sous Cardinal. C'est ce qui donne l'épaisseur
+ * physique ; une arête grise sous un bouton bleu ferait une ombre, pas un
+ * objet.
+ *
+ * L'encre posée dessus est `encreSurCouleur` (#0D0D0D) et non du blanc : blanc
+ * sur Owl rend 2,09:1, sur Macaw 2,44:1, sur Cardinal 3,30:1 — aucun ne passe.
+ * C'est un écart délibéré avec la référence, imposé par le contraste, et il
+ * reste dans la charte (l'encre rend 9,30:1 sur Owl).
+ *
+ * `secondary` prend `border2` (#D4D4D4) en arête et non `border` (#E5E5E5) :
+ * un bouton blanc dont l'arête a la couleur de sa bordure ne montre aucune
+ * épaisseur — l'arête se confond avec le bord. Un cran en dessous suffit.
+ *
+ * `success` est DISPONIBLE, pas à répandre : elle ne sert que là où l'action
+ * conclut une progression. Partout ailleurs le CTA est `primary`.
+ */
+const SKINS = {
+  primary:   { background: T.action, color: T.encreSurCouleur, arete: T.areteAction, caps: true },
+  success:   { background: T.green,  color: T.encreSurCouleur, arete: T.areteSucces, caps: true },
+  secondary: { background: T.white,  color: T.text,  arete: T.border2, border: T.border },
+  ghost:     { background: "transparent", color: T.textSub, arete: null },
+  danger:    { background: T.red,    color: T.encreSurCouleur, arete: T.areteAlerte },
+};
+
+/**
+ * Bouton d'action : un objet POSÉ sur son arête basse.
+ *
+ * Un bouton désactivé retombe sur le creux plutôt que de se contenter d'une
  * opacité : un bouton primaire à 50 % reste plus visible que les actions
- * réellement disponibles autour de lui.
+ * réellement disponibles autour de lui. Il perd aussi son arête — un objet
+ * qu'on ne peut pas enfoncer ne doit pas avoir l'air enfonçable.
+ *
+ * `data-arete` et `--arete-y` sont lus par globals.css, qui joue l'appui :
+ * l'arête tombe à 0 et le bouton descend d'autant. L'enfoncement se joue sur
+ * l'arête, jamais sur une mise à l'échelle.
  */
 /** @param {{ variant?: string, disabled?: boolean, compact?: boolean, style?: import("react").CSSProperties, children?: import("react").ReactNode } & Record<string, any>} props */
 export function PillButton({
@@ -162,30 +237,33 @@ export function PillButton({
   compact = false,
   style = undefined,
   children = undefined,
+  onMouseEnter = undefined,
+  onMouseLeave = undefined,
   ...rest
 }) {
-  const skins = {
-    primary: { background: T.text, color: T.textInverted },
-    secondary: { background: FIELD_BG, color: T.text },
-    ghost: { background: "transparent", color: T.textSub },
-    danger: { background: T.redBg, color: T.red },
-  };
-  const skin = disabled ? { background: FIELD_BG, color: T.textSub } : skins[variant];
+  const skin = SKINS[variant] || SKINS.secondary;
   const metrics = compact ? BTN.sm : BTN.md;
+  const off = disabled
+    ? { background: variant === "ghost" ? "transparent" : T.surfaceCreuse, color: T.textOff, arete: null }
+    : skin;
   return (
     <button
       disabled={disabled}
+      data-arete={off.arete ? "" : undefined}
       /* Métriques : BTN (lib/ui/buttons.ts), jamais des nombres écrits ici.
-         `compact` = le palier `sm`, qui a maintenant une hauteur minimale au
-         lieu de zéro : sans elle, un bouton compact portant une icône était
-         plus haut que son voisin qui n'en porte pas. */
+         `compact` = le palier `sm`, qui rend la même métrique : sans hauteur
+         minimale, un bouton compact portant une icône était plus haut que son
+         voisin qui n'en porte pas. */
       style={{
         minHeight: metrics.minHeight,
         padding: metrics.padding,
         borderRadius: metrics.borderRadius,
-        border: "none",
+        borderWidth: off.border ? 2 : 0,
+        borderStyle: "solid",
+        borderColor: off.border || "transparent",
         fontSize: metrics.fontSize,
-        fontWeight: metrics.fontWeight,
+        fontWeight: skin.caps && !disabled ? 700 : metrics.fontWeight,
+        ...(skin.caps && !disabled ? CAPS : null),
         fontFamily: "inherit",
         cursor: disabled ? "not-allowed" : "pointer",
         display: "inline-flex",
@@ -194,8 +272,31 @@ export function PillButton({
         gap: metrics.gap,
         whiteSpace: "nowrap",
         transition: "var(--tr-ui)",
-        ...skin,
+        background: off.background,
+        color: off.color,
+        boxShadow: off.arete ? `0 ${metrics.arete}px 0 ${off.arete}` : "none",
+        "--arete-y": `${metrics.arete}px`,
         ...style,
+      }}
+      /* Survol : l'aplat se mélange à 8 % vers SA couleur d'arête — la teinte
+         reste la sienne, elle se pose juste d'un cran. L'arête, elle, ne bouge
+         pas : c'est l'appui qui la fait tomber, pas le survol. Pointeur fin
+         seulement, comme partout : au doigt, le survol se déclenche à l'appui
+         et ne se relâche jamais. */
+      onMouseEnter={(e) => {
+        if (!disabled && hasFinePointer()) {
+          const el = e.currentTarget;
+          el.dataset.restBg = el.style.background;
+          el.style.background = off.arete
+            ? `color-mix(in srgb, ${off.arete} 8%, ${off.background})`
+            : T.surfaceCreuse;
+        }
+        onMouseEnter?.(e);
+      }}
+      onMouseLeave={(e) => {
+        const el = e.currentTarget;
+        el.style.background = el.dataset.restBg || off.background;
+        onMouseLeave?.(e);
       }}
       {...rest}
     >
@@ -205,10 +306,15 @@ export function PillButton({
 }
 
 /**
- * Bouton d'icône rond de l'en-tête d'une modale (fermer, supprimer).
+ * Bouton d'icône de l'en-tête d'une modale (fermer, supprimer).
  *
  * Sans fond au repos : dans un en-tête qui ne porte rien d'autre, un aplat
  * permanent ferait de la fermeture l'élément le plus visible de la fenêtre.
+ *
+ * Carré de 44 et non disque de 28 : 28 est très en dessous du seuil de cible
+ * tactile, et un rond posé à côté d'un bouton de texte à rayon 12 fait deux
+ * formes dans la même barre. Il grandit l'en-tête, et c'est le prix à payer
+ * pour que la fermeture soit atteignable au doigt.
  */
 /** @param {{ tone?: string, style?: import("react").CSSProperties, children?: import("react").ReactNode } & Record<string, any>} props */
 export function IconButton({ tone = "neutral", style = undefined, children = undefined, ...rest }) {
@@ -219,7 +325,7 @@ export function IconButton({ tone = "neutral", style = undefined, children = und
     <button
       type="button"
       style={{
-        width: 28, height: 28, borderRadius: "50%", border: "none",
+        ...BTN_ICON.md, border: "none",
         background: "transparent", color: T.textSub, cursor: "pointer",
         display: "inline-flex", alignItems: "center", justifyContent: "center",
         transition: "var(--tr-ui)", flexShrink: 0,
@@ -275,11 +381,21 @@ export function CheckBox({ on = false, partial = false, color = T.text, size = 1
 
 /* ── Étiquetage ──────────────────────────────────────────────────────────── */
 
-/** Libellé d'un champ : 12 px atténué, jamais de capitales espacées. */
+/**
+ * Libellé d'un champ : 12 px atténué, jamais de capitales espacées.
+ *
+ * C'est le seul des trois libellés de 12 px de la DA qui reste en minuscules.
+ * La casse capitale coiffe un en-tête de section ou une colonne de tableau —
+ * une fois par groupe ; répétée sur les douze champs d'un formulaire, elle
+ * crierait plus fort que les valeurs qu'elle annonce.
+ *
+ * Encre atténuée et non une opacité : à 50 %, l'encre rend 3,9:1 sur blanc,
+ * sous le seuil que la DA impose à toute métadonnée.
+ */
 /** @param {{ children?: import("react").ReactNode, style?: import("react").CSSProperties }} props */
 export function Label({ children, style = undefined }) {
   return (
-    <div style={{ fontSize: 12, fontWeight: 500, color: T.text, opacity: 0.5, ...style }}>
+    <div style={{ ...TYPE.label, color: T.textSub, ...style }}>
       {children}
     </div>
   );
@@ -304,9 +420,13 @@ export function Field({ label, hint = undefined, error = undefined, required = f
       )}
       {children}
       {/* L'erreur remplace l'aide : afficher les deux ferait lire deux fois. */}
+      {/* L'erreur est un TEXTE rouge sous le champ, jamais un aplat rouge
+          portant du texte : sur Cardinal plein, le blanc ne rend que 3,30:1 et
+          l'encre y perdrait le sens d'alerte. Le champ, lui, prend la bordure
+          d'alerte — c'est là que se lit l'état. */}
       {error
-        ? <div role="alert" style={{ fontSize: 11, color: T.red, lineHeight: 1.5 }}>{error}</div>
-        : hint ? <div style={{ fontSize: 11, color: T.textMut, lineHeight: 1.5 }}>{hint}</div> : null}
+        ? <div role="alert" style={{ ...TYPE.caption, color: T.red }}>{error}</div>
+        : hint ? <div style={{ ...TYPE.caption, color: T.textMut }}>{hint}</div> : null}
     </div>
   );
 }
@@ -337,7 +457,7 @@ export function FieldGrid({ columns = 2, gap = 14, children = undefined, style =
  */
 export function FieldGroup({ children = undefined, style = undefined }) {
   return (
-    <div style={{ background: FIELD_BG, border: "none", borderRadius: 12, padding: 12, ...style }}>
+    <div style={{ background: T.surfaceCreuse, border: "none", borderRadius: "var(--radius-card)", padding: 12, ...style }}>
       {children}
     </div>
   );

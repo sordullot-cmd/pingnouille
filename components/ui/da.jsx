@@ -11,17 +11,29 @@
 import React from "react";
 import { ArrowLeft, ChevronDown, ChevronLeft, ChevronRight, Check } from "lucide-react";
 import { T, FIELD_BG } from "@/lib/ui/tokens";
+import { BTN } from "@/lib/ui/buttons";
+import { TYPE, CAPS } from "@/lib/ui/type";
 import { dotRing } from "@/lib/ui/color";
 import { fmt } from "@/lib/ui/format";
 import { periodStart } from "@/lib/ui/period";
 import Popover from "@/components/ui/Popover";
 
-/** Carte blanche : coins 12, ombre très douce, pas de bordure. */
+/**
+ * Carte blanche : coins 12, bordure de 2, arête basse de 6.
+ *
+ * Elle ne se détache plus par une ombre posée sur un fond gris — le fond de
+ * page est BLANC (cf. le principe premier de la DA, `components/DashboardNew`)
+ * et une ombre douce sur du blanc ne découpe rien. Ce qui la découpe est la
+ * bordure et l'arête ENSEMBLE : Swan sur blanc ne rend que 1,19:1, aucune des
+ * deux ne suffit seule. L'arête est un aplat solide, sans flou ni décalage
+ * horizontal — la carte est posée, elle ne flotte pas.
+ */
 export const CARD = {
   background: T.white,
-  borderRadius: 12,
+  border: `2px solid ${T.border}`,
+  borderRadius: "var(--radius-card)",
   padding: 16,
-  boxShadow: T.elevCard,
+  boxShadow: T.areteCarte,
   overflow: "hidden",
 };
 
@@ -50,16 +62,18 @@ export {
   PillButton, IconButton, CheckBox, Modal, ScrollArea,
 } from "@/components/ui/form";
 
-/** Libellé d'un champ ou d'un bloc, dans une carte. */
+/** Libellé d'un champ ou d'un bloc, dans une carte.
+ *  Encre atténuée et non une opacité : à 50 %, l'encre rend 3,9:1 sur blanc,
+ *  sous le seuil que la DA impose à toute métadonnée. */
 export function FieldLabel({ children }) {
-  return <div style={{fontSize:12,fontWeight:500,color:T.text,opacity:0.5}}>{children}</div>;
+  return <div style={{...TYPE.label, color:T.textSub}}>{children}</div>;
 }
 
 /** Ligne « libellé → valeur » : la mesure et son nom, sur une ligne. */
 export function StatRow({ label, value, color }) {
   return (
     <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",gap:12}}>
-      <span style={{fontSize:12,color:T.text,opacity:0.5,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{label}</span>
+      <span style={{...TYPE.label, fontWeight:400, color:T.textSub, overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{label}</span>
       <span style={{fontSize:13,fontWeight:600,letterSpacing:-0.15,color:color||T.text,whiteSpace:"nowrap",fontVariantNumeric:"tabular-nums"}}>{value}</span>
     </div>
   );
@@ -279,15 +293,24 @@ export function AllocationChart({
   );
 }
 
-/** En-tête de colonne : 12px Medium (à poser dans un bloc opacity .4).
- *  Sans capitales forcées : en français les intitulés portent des accents que
- *  les capitales rendent mal, et « P&L » ou « % total » n'y gagnaient rien.
- *  L'en-tête se distingue déjà par sa taille et son opacité. */
+/**
+ * En-tête de colonne : `label` en CAPITALES espacées, graisse 500.
+ *
+ * La graisse est une exception assumée au 700 des autres capitales de la DA :
+ * une grille dense empile des dizaines d'en-têtes, et à 700 ils pèsent plus
+ * lourd que les chiffres qu'ils annoncent — l'inverse de ce qu'on leur
+ * demande. La casse et l'espacement, eux, sont les mêmes que partout ailleurs
+ * (`CAPS`, valeur unique du système).
+ *
+ * L'objection d'avant — « en français les intitulés portent des accents que
+ * les capitales rendent mal » — ne tient pas : les capitales accentuées se
+ * composent correctement, et c'est la casse qui distingue l'annonce de la
+ * donnée dans une grille où tout est aligné.
+ */
 export const TH = {
-  fontSize: 12,
-  fontWeight: 500,
-  lineHeight: "17.05px",
-  color: T.text,
+  ...TYPE.label,
+  ...CAPS,
+  color: T.textSub,
 };
 
 /**
@@ -328,16 +351,28 @@ export function BackLink({ label, icon, onClick }) {
 }
 
 /**
- * Titre de section (24 px Medium), posé hors carte, action optionnelle à droite.
+ * Titre de section, posé hors carte, action optionnelle à droite.
  *
- * `size="sm"` (18 px) : variante pour les pages qui empilent beaucoup de
- * sections courtes — le 24 px y prend le dessus sur le contenu qu'il annonce.
+ * Deux tailles, et ce sont deux rôles différents :
+ *
+ * - `md` — le TITRE de l'écran ou d'une grande section : `title2`, 24/700, en
+ *   casse normale. La DA interdit les capitales sur un titre, et il n'y en a
+ *   qu'un par vue, toujours au même endroit.
+ * - `sm` — l'EN-TÊTE de section (« BILAN », « RECORDS PERSONNELS ») :
+ *   capitales espacées, graisse 700, couleur atténuée. C'est le libellé gris
+ *   qui coiffe un groupe sur les écrans de la référence, et c'est l'un des
+ *   trois seuls endroits où la DA emploie la casse capitale.
+ *
+ * Le 18 px d'avant n'était sur aucun des dix crans de l'échelle ; il passait
+ * au travers du garde-fou parce qu'il était écrit en ternaire.
  */
 export function SectionTitle({ children, action, size = "md" }) {
   const sm = size === "sm";
   return (
     <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",gap:12,width:"100%"}}>
-      <h2 style={{fontSize: sm ? 18 : 24,fontWeight:500,lineHeight: sm ? "22px" : "26.35px",color:T.text,margin:0}}>{children}</h2>
+      <h2 style={sm
+        ? {...TYPE.label, ...CAPS, fontWeight:700, color:T.textSub, margin:0}
+        : {...TYPE.title2, color:T.text, margin:0}}>{children}</h2>
       {action}
     </div>
   );
@@ -350,7 +385,7 @@ export function SectionAction({ children, onClick }) {
       type="button"
       onClick={onClick}
       style={{background:"none",border:"none",padding:0,cursor:"pointer",fontFamily:"inherit",
-              fontSize:14,lineHeight:"26.35px",color:T.text,opacity:0.4}}
+              ...TYPE.callout, color:T.textSub}}
     >
       {children}
     </button>
@@ -639,15 +674,17 @@ export const PERIOD_ALL = "ALL";
  * passe à la métrique 14 px de la page Calendrier.
  *
  * `track` est la variante « onglets » (Éloquence, Agenda, Révisions, Sport) :
- * libellés plus espacés et un peu plus gras. Elle n'a PLUS de piste grise —
- * sur le fond de page, qui est déjà gris, l'aplat du groupe faisait un second
- * gris à peine distinct du premier et n'ajoutait aucune information. C'est le
- * bloc blanc de l'actif qui dit où l'on est ; les autres libellés reposent
- * simplement sur le fond de la page.
+ * elle donne aux libellés un peu plus d'air. Elle n'a pas de piste.
  *
- * `rail` remet cette piste, et sert au seul cas où elle est nécessaire : un
- * groupe posé DANS une carte blanche (la courbe de SportPage). Sans elle, le
- * bloc blanc de l'actif serait blanc sur blanc — donc invisible.
+ * `rail` pose la piste du segmenté — un CREUX (`surfaceCreuse`), le
+ * remplissage que la DA réserve aux pistes et aux champs. Elle sert au groupe
+ * posé DANS une carte blanche (la courbe de SportPage) : sans elle, le bloc
+ * blanc de l'actif serait blanc sur blanc.
+ *
+ * Depuis que le fond de page est blanc, l'actif ne peut plus se dire par un
+ * bloc blanc : il prend l'aplat de l'accent et son encre descendue, la même
+ * mécanique que l'item de navigation actif. L'opacité de 0,6 des inactifs
+ * disparaît avec — une encre à 60 % rend 4,2:1 sur blanc, sous le seuil.
  *
  * Le gras est le MÊME pour tous les onglets, actif compris : le faire monter à
  * la sélection changerait la largeur du texte, et les onglets voisins
@@ -657,7 +694,7 @@ export function PeriodPills({ value, onChange, options = PERIODS, track = false,
   return (
     <div style={{
       display:"flex", alignItems:"center", gap:4,
-      ...(rail ? {background:T.segmentTrack, padding:2, borderRadius:999} : null),
+      ...(rail ? {background:T.surfaceCreuse, padding:2, borderRadius:"var(--radius-card)"} : null),
     }}>
       {options.map(p => {
         const active = value === p.id;
@@ -667,27 +704,23 @@ export function PeriodPills({ value, onChange, options = PERIODS, track = false,
             type="button"
             onClick={() => onChange?.(p.id)}
             aria-pressed={active}
-            style={{minHeight: 34,
-              padding: "8px 16px",
-              borderRadius:999, border:"none",
-              background: active ? T.white : "transparent",
-              boxShadow: active ? T.areteBouton : "none",
-              color: T.text, opacity: active ? 1 : 0.6,
+            style={{minHeight: BTN.md.minHeight,
+              padding: track ? BTN.md.padding : "12px 12px",
+              borderRadius: BTN.md.borderRadius, border:"none",
+              /* Aucune arête sur un segmenté : c'est un sélecteur posé dans une
+                 piste, pas un objet qu'on enfonce. L'état se dit par l'aplat. */
+              background: active ? T.navActiveBg : "transparent",
+              color: active ? T.navActiveText : T.textSub,
               /* 600 et non le 500 des autres boutons : ces pastilles CADRENT
                  tout ce qu'on lit en dessous (la courbe, les totaux). On les
                  relit en boucle en comparant deux fenêtres, et elles doivent se
                  retrouver d'un coup d'oeil dans une rangée de commandes. Même
                  graisse pour la pastille prise et les autres : l'état actif se
-                 dit par le fond et l'ombre. */
+                 dit par le fond et l'encre. */
               fontSize:size, fontWeight:600,
-              /* 18 px et non les 18,6 relevés dans Figma : avec les 8 px de
-                 marge haute et basse communs à tous les boutons, la pastille
-                 tombe alors sur 34 px pile — la hauteur du site. À 18,6 elle
-                 dépassait d'un pixel, et une rangée d'onglets posée à côté d'un
-                 bouton se voyait décalée. */
-              lineHeight:"18px", cursor:"pointer", fontFamily:"inherit",
+              lineHeight:1, cursor:"pointer", fontFamily:"inherit",
               whiteSpace:"nowrap",
-              transition:"background 140ms var(--ease-out, ease), opacity 140ms var(--ease-out, ease)",
+              transition:"var(--tr-ui)",
             }}
           >
             {p.label ?? p.id}

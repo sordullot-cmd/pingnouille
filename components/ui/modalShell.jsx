@@ -33,8 +33,8 @@ export function ModalShell({ title, subtitle, onClose, children, footer, width =
         aria-label={title}
         className="anim-modal"
         style={{
-          background: T.white, borderRadius: 14, width: "100%", maxWidth: width,
-          boxShadow: "var(--elev-overlay)", border: `1px solid ${T.border}`,
+          background: T.white, borderRadius: "var(--radius-modal)", width: "100%", maxWidth: width,
+          boxShadow: "var(--elev-overlay)", border: `2px solid ${T.border}`,
           display: "flex", flexDirection: "column", maxHeight: "calc(100vh - 32px)",
         }}
       >
@@ -51,7 +51,7 @@ export function ModalShell({ title, subtitle, onClose, children, footer, width =
             aria-label={t("common.close")}
             style={{
               display: "inline-flex", alignItems: "center", justifyContent: "center",
-              width: 32, height: 32, borderRadius: 8, border: "none",
+              width: 44, height: 44, borderRadius: "var(--radius-card)", border: "none",
               background: "transparent", color: T.textMut, cursor: "pointer", flexShrink: 0,
             }}
             onMouseEnter={(e) => { e.currentTarget.style.background = T.accentBg; }}
@@ -89,8 +89,9 @@ export function Field({ label, hint, children }) {
 }
 
 const inputStyle = {
-  width: "100%", padding: "9px 12px", borderRadius: 8,
-  border: `1px solid ${T.border}`, background: T.white,
+  width: "100%", minHeight: 44, boxSizing: "border-box", padding: "0 12px",
+  borderRadius: "var(--radius-field)",
+  border: `2px solid ${T.border}`, background: T.surfaceCreuse,
   fontSize: 13, color: T.text, fontFamily: "inherit", outline: "none",
 };
 

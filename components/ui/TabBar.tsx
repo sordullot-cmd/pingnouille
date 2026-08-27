@@ -2,6 +2,8 @@
 
 import React from "react";
 import type { LucideIcon } from "lucide-react";
+import { accentInk } from "@/lib/ui/accent";
+import { TYPE } from "@/lib/ui/type";
 
 export interface TabItem {
   id: string;
@@ -112,12 +114,17 @@ export default function TabBar({ items, activeId, onSelect, moreOpen = false }: 
                 style={{
                   display: "grid",
                   placeItems: "center",
-                  width: 38,
-                  height: 38,
-                  borderRadius: 12,
+                  width: 44,
+                  height: 44,
+                  borderRadius: "var(--radius-card)",
                   background: "var(--accent)",
-                  color: "var(--color-on-solid, #FFFFFF)",
-                  boxShadow: "0 2px 10px color-mix(in srgb, var(--accent) 35%, transparent)",
+                  /* Encre CALCULÉE et non `--color-on-solid` : blanc sur Macaw
+                     ne rend que 2,44:1, et l'accent est réglable — la réponse
+                     dépend donc de la teinte choisie (cf. `accentInk`). */
+                  color: accentInk(),
+                  /* Arête basse en aplat, pas une ombre floue : la pastille est
+                     posée sur la barre, elle n'y flotte pas. */
+                  boxShadow: "0 4px 0 color-mix(in srgb, var(--accent) 70%, #0D0D0D)",
                 }}
               >
                 <Icon size={20} strokeWidth={2.2} />
@@ -128,10 +135,8 @@ export default function TabBar({ items, activeId, onSelect, moreOpen = false }: 
             {!item.primary && (
               <span
                 style={{
-                  fontSize: 10,
+                  ...TYPE.caption2,
                   lineHeight: 1,
-                  fontWeight: 500,
-                  letterSpacing: 0.1,
                   maxWidth: "100%",
                   overflow: "hidden",
                   textOverflow: "ellipsis",

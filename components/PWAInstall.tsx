@@ -138,9 +138,10 @@ export default function PWAInstall() {
             <button
               onClick={onInstall}
               style={{
-                padding: "10px 14px", minHeight:44, borderRadius: 8, border: "none",
-                background: "var(--color-btn-primary-bg, #0D0D0D)", color: "var(--color-btn-primary-text, #FFFFFF)",
-                fontSize:13, fontWeight: 500, cursor: "pointer",
+                padding: "12px 16px", minHeight:44, borderRadius: 12, border: "none",
+                background: "var(--color-action, #1CB0F6)", color: "var(--color-encre-sur-couleur, #0D0D0D)",
+                boxShadow: "0 4px 0 var(--color-arete-action, #1899D6)",
+                fontSize:13, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", cursor: "pointer",
                 fontFamily: "inherit",
                 display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 6,
               }}

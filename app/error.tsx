@@ -66,15 +66,18 @@ export default function Error({
           type="button"
           onClick={reset}
           style={{
-            background: "var(--color-btn-primary-bg, #0D0D0D)",
-            color: "var(--color-btn-primary-text, #FFFFFF)",
-            border: "1px solid var(--color-btn-primary-bg, #0D0D0D)",
-            padding: "8px 16px", fontSize: 14,
-            minHeight: 34,
-            borderRadius: 999,
+            background: "var(--color-action, #1CB0F6)",
+            color: "var(--color-encre-sur-couleur, #0D0D0D)",
+            border: "none",
+            boxShadow: "0 4px 0 var(--color-arete-action, #1899D6)",
+            padding: "12px 16px", fontSize: 14,
+            minHeight: 44,
+            borderRadius: 12,
             cursor: "pointer",
             fontFamily: "inherit",
-            fontWeight: 500,
+            fontWeight: 700,
+            textTransform: "uppercase",
+            letterSpacing: "0.08em",
           }}
         >
           Réessayer

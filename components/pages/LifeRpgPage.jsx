@@ -848,16 +848,17 @@ export default function LifeRpgPage() {
             c'est ce qui pose le bouton au même pixel que sur toutes les autres
             pages, quelle que soit la hauteur du bloc de tête à sa gauche. */}
         <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", flexShrink: 0 }}>
+          {/* La barre principale de l'écran : 16 de haut (la valeur relevée),
+              et le remplissage par DÉFAUT, c'est-à-dire le vert de succès sur
+              la piste Swan. Elle prenait l'accent de marque, qui est réglable :
+              une progression est un succès, pas une couleur de marque, et le
+              vert ne dit plus que cela depuis que le bleu porte l'action. */}
           <XpBar
+            size="main"
             level={lvl.level}
             pct={lvl.pct}
             intoLevel={lvl.intoLevel}
             neededForNext={lvl.neededForNext}
-            totalXp={progress.totalXp}
-            fillColor={T.brand}
-            trackColor={T.accentBg}
-            textColor={T.text}
-            mutedColor={T.textMut}
             width={180}
           />
           {/* À ne pas confondre avec les trois objectifs de l'année : ceci crée

@@ -20,6 +20,9 @@ export const T = {
   text:     "var(--color-text, #0D0D0D)",
   textSub:  "var(--color-text-sub, #5C5C5C)",
   textMut:  "var(--color-text-muted, #6B6B6B)",
+  /* Libellé d'un contrôle DÉSACTIVÉ, et rien d'autre : Hare ne rend que 2,19:1
+     sur blanc. Un texte secondaire qui doit rester lisible prend `textMut`. */
+  textOff:  "var(--color-text-disabled, #AFAFAF)",
   green:    "var(--color-green, #58CC02)",
   greenBg:  "var(--color-green-bg, color-mix(in srgb, #58CC02 12%, transparent))",
   greenBd:  "var(--color-green-bd, color-mix(in srgb, #58CC02 45%, transparent))",

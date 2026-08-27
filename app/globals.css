@@ -84,7 +84,19 @@
      `--color-nav-text` est le gris des items au repos : un cran à peine plus
      soutenu que `--color-text-sub`, sans peser face à l'entrée active. */
   --color-nav-active-bg: var(--accent-soft);
-  --color-nav-active-text: var(--accent);
+  /* L'accent DESCENDU vers le noir, pas l'accent brut : posé tel quel sur son
+     propre voile à 10 % (un fond de luminance ~0,88), Macaw ne rend que
+     2,5:1 — le libellé de l'item où l'on se trouve était le texte le moins
+     lisible de la barre.
+     C'est le principe de `deepen()` (lib/ui/color) — « puce, trait, texte,
+     glyphe → deepen() » —, écrit ici en `color-mix` parce que `--accent` est
+     un réglage utilisateur : sa valeur n'existe qu'à l'exécution, et deepen()
+     rend une couleur non hexadécimale inchangée. 55 % de teinte pour 45 %
+     d'encre porte Macaw à 5,5:1 en gardant la teinte reconnaissable, quel que
+     soit le préréglage choisi. L'aplat `--accent-soft`, lui, ne bouge pas.
+     Non redéfini en sombre : le voile y est sombre, l'accent brut y rend déjà
+     4,5:1, et le descendre vers le noir l'y ferait disparaître. */
+  --color-nav-active-text: color-mix(in srgb, var(--accent) 55%, #0D0D0D);
   --color-nav-text: #555555;
   /* Survol de la barre latérale : plus léger que le `--color-hover-bg` général.
      La sidebar est posée sur du blanc pur et ses items sont des pilules pleine
@@ -154,6 +166,14 @@
      au lieu de l'ancien #8E8E8E (~2.9:1). */
   --color-text-muted: #6B6B6B;
   --color-text-inverted: #FFFFFF;
+  /* Libellé d'un contrôle DÉSACTIVÉ, et rien d'autre. Hare #AFAFAF rend 2,19:1
+     sur blanc et 2,05:1 sur Polar : WCAG 2.1 exempte de son critère 1.4.3 le
+     texte d'un composant d'interface inactif, et c'est la seule raison pour
+     laquelle cette valeur est conforme — pas parce qu'elle est lisible.
+     Corollaires : un contrôle désactivé ne porte jamais la seule information
+     d'un écran, et un texte gris qui doit RESTER lisible tout en paraissant
+     secondaire prend `--color-text-muted` (5,7:1), jamais celui-ci. */
+  --color-text-disabled: #AFAFAF; /* Hare */
 
   /* Couleurs sémantiques (texte/lignes/traits) — thème-aware.
      Référencées par lib/ui/tokens.ts (T.green, T.red, T.amber, …).
@@ -176,11 +196,6 @@
   /* Bordures */
   --color-border: #E5E5E5;
   --color-border-strong: #D4D4D4;
-
-  /* Boutons */
-  --color-btn-primary-bg: #0D0D0D;
-  --color-btn-primary-text: #FFFFFF;
-  --color-btn-primary-hover: #262626;
 
   /* Status — les mêmes principales, sous leur nom de rôle. */
   --color-success: #58CC02;
@@ -333,6 +348,7 @@
   --color-text: #C8C8C8;        /* texte principal en gris doux */
   --color-text-sub: #909090;
   --color-text-muted: #8A8A8A;  /* remonté pour contraste sur fond sombre */
+  --color-text-disabled: #5A5A5C;
   /* Texte posé sur une pastille --color-text (badge du menu) : en sombre la
      pastille devient claire, il faut donc de l'encre foncée. */
   --color-text-inverted: #0D0D0D;
@@ -375,8 +391,10 @@
      Mêmes rôles qu'en clair, teintes remontées pour rester lisibles sur fond
      sombre. La maquette Figma ne couvre que le mode clair : ces valeurs sont
      dérivées, pas relevées. */
-  /* `--color-nav-active-*` n'est plus redéfini ici : il suit `--accent*`, qui a
-     déjà sa déclinaison sombre en tête de fichier. */
+  /* Sur fond sombre, l'item actif reprend l'accent BRUT : le voile y est sombre
+     (16 % sur #1A1A1B), l'accent y rend déjà 4,5:1, et la descente vers le noir
+     du thème clair l'y éteindrait. */
+  --color-nav-active-text: var(--accent);
   /* Sur fond sombre, « soutenu » veut dire plus CLAIR : c'est le contraste qui
      compte, pas la valeur absolue. */
   --color-nav-text: #999999;
@@ -1208,47 +1226,23 @@ button:not([data-no-press]):not(:disabled):active {
   animation: shimmerSweep var(--dur-shimmer) linear infinite;
 }
 
-/* === RPG : feedback de gain d'XP & montée de niveau ===
-   Le seul endroit du site où l'on s'autorise du « delight » : ces moments
-   sont rares et gratifiants. Utilise enfin --ease-spring. */
+/* === Célébration : UNE seule ===
+   Le seul endroit du site où l'on s'autorise du « delight ». Il y en avait
+   quatre à la fois sur un passage de niveau — badge qui pope (620 ms), barre
+   qui flashe (700), particules (700), « +N XP » flottant (900) —, c'est-à-dire
+   quatre durées et trois éléments animés dans le même instant. Un accent qui
+   se répète quatre fois n'est plus un accent.
 
-/* +XP flottant : monte et s'estompe au-dessus de la barre. */
-@keyframes xpFloat {
-  0%   { opacity: 0; transform: translateY(4px) scale(0.9); }
-  15%  { opacity: 1; transform: translateY(0) scale(1); }
-  100% { opacity: 0; transform: translateY(-22px) scale(1); }
-}
-.anim-xp-float {
-  animation: xpFloat 900ms var(--ease-out) both;
-  pointer-events: none;
-}
-
-/* Badge de niveau qui « pop » en spring lors d'un level-up. */
+   Il n'en reste que le passage de niveau, sur `--dur-celebration` (570 ms,
+   relevé image par image sur la référence) et `--ease-spring`, dont le profil
+   est celui du relevé : dépassement puis stabilisation. Une seule propriété
+   animée — l'échelle —, un seul élément, un par écran au maximum. */
 @keyframes levelPop {
   0%   { transform: scale(1); }
   35%  { transform: scale(1.35); }
   100% { transform: scale(1); }
 }
-.anim-level-pop { animation: levelPop 620ms var(--ease-spring) both; }
-
-/* Flash de luminosité de la barre au passage de palier. */
-@keyframes barFlash {
-  0%, 100% { filter: brightness(1); box-shadow: 0 0 0 0 rgba(255,255,255,0); }
-  40%      { filter: brightness(1.6); box-shadow: 0 0 12px 2px rgba(255,255,255,0.5); }
-}
-.anim-bar-flash { animation: barFlash 700ms var(--ease-out) both; }
-
-/* Particules discrètes qui jaillissent du badge (level-up). */
-@keyframes xpBurst {
-  0%   { opacity: 1; transform: translate(0, 0) scale(1); }
-  100% { opacity: 0; transform: translate(var(--bx, 0), var(--by, -18px)) scale(0.4); }
-}
-.anim-xp-burst { animation: xpBurst 700ms var(--ease-out) both; pointer-events: none; }
-
-@media (prefers-reduced-motion: reduce) {
-  .anim-xp-float { animation: fadeIn 200ms ease both !important; }
-  .anim-level-pop, .anim-bar-flash, .anim-xp-burst { animation: none !important; }
-}
+.anim-level-pop { animation: levelPop var(--dur-celebration) var(--ease-spring) both; }
 
 /* === Pulse subtil pour indicateurs live === */
 @keyframes pulseSoft {
@@ -2176,7 +2170,12 @@ button img,
   /* Rayon en haut seulement : la feuille est ANCRÉE au bas de l'écran, elle
      n'y flotte pas. Arrondir les quatre coins la décollerait du bord et
      trahirait le fait qu'elle vient de sortir de là. */
-  border-radius: 16px 16px 0 0;
+  border-radius: var(--radius-modal) var(--radius-modal) 0 0;
+  /* Une feuille FLOTTE : c'est l'un des rares endroits où l'ombre floue reste
+     légitime. Elle est portée vers le HAUT, pas reprise de `--elev-overlay`,
+     parce que la lumière ne peut pas venir d'en dessous d'une surface ancrée
+     au bas de l'écran. La bordure haute, elle, est celle des autres blocs. */
+  border-top: 2px solid var(--color-border);
   box-shadow: 0 -8px 40px rgba(0, 0, 0, 0.18);
   /* Elle entre et sort par le bas, toujours. */
   animation: sheetIn 320ms var(--ease-drawer) both;

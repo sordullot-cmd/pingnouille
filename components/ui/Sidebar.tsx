@@ -164,8 +164,12 @@ export default function Sidebar(props: SidebarProps) {
         maxWidth: collapsed ? undefined : 260,
         flexShrink: 0,
         background: "var(--color-card-bg, #FFFFFF)",
-        borderRadius: 12,
-        boxShadow: "var(--elev-card)",
+        /* Depuis que le fond de page est BLANC, une ombre douce ne détache plus
+           rien : la barre se pose comme les autres blocs, sur une bordure de 2
+           et une arête basse. */
+        border: "2px solid var(--color-border)",
+        borderRadius: "var(--radius-card)",
+        boxShadow: "var(--arete-carte)",
         margin: "12px 0 12px 12px",
         display: "flex",
         flexDirection: "column",
@@ -269,18 +273,21 @@ export default function Sidebar(props: SidebarProps) {
                   title={collapsed ? item.label : undefined}
                   aria-label={item.label}
                   aria-current={active ? "page" : undefined}
-                  style={{minHeight: 34,
+                  style={{minHeight: 44,
                     width: "100%", display: "flex", alignItems: "center",
                     gap: collapsed ? 0 : 10, justifyContent: collapsed ? "center" : "flex-start",
                     padding: collapsed ? "8px 0" : "8px 12px 8px 10px",
-                    // Ovale : le survol dessine une pilule, pas un rectangle aux
-                    // coins arrondis.
-                    borderRadius: 999, border: "none",
-                    /* La page active ne porte plus de pastille de fond : elle est
-                       simplement écrite dans la couleur du site. Le fond reste
-                       donc libre pour le seul survol, et un seul signal —  la
-                       couleur — désigne la page courante. */
-                    background: "transparent",
+                    /* Rayon 12 comme tout le reste, et 44 de haut : la pilule
+                       n'est plus la forme des cibles, et 34 était sous le seuil
+                       de cible tactile. Aucune ARÊTE en revanche — une barre de
+                       navigation est une surface, pas un objet posé. */
+                    borderRadius: "var(--radius-card)", border: "none",
+                    /* L'item actif reprend l'aplat de l'accent, et son libellé
+                       l'accent descendu vers le noir (cf. `--color-nav-active-text`
+                       dans globals.css) : posé tel quel sur son propre voile,
+                       l'accent brut ne rendait que 2,5:1 — le libellé de la page
+                       où l'on se trouve était le moins lisible de la barre. */
+                    background: active ? "var(--color-nav-active-bg)" : "transparent",
                     color: active ? "var(--color-nav-active-text)" : "var(--color-nav-text)",
                     fontSize: 13, lineHeight: "20.15px",
                     // Gras : libellé ET icône (via strokeWidth) ont le même poids.
@@ -293,10 +300,10 @@ export default function Sidebar(props: SidebarProps) {
                     transition: "background-color 150ms var(--ease-out), color 150ms var(--ease-out)",
                     position: "relative",
                   }}
-                  onMouseEnter={e => { e.currentTarget.style.background = "var(--color-nav-hover-bg)"; }}
-                  onMouseLeave={e => { e.currentTarget.style.background = "transparent"; }}
+                  onMouseEnter={e => { if (!active) e.currentTarget.style.background = "var(--color-nav-hover-bg)"; }}
+                  onMouseLeave={e => { if (!active) e.currentTarget.style.background = "transparent"; }}
                 >
-                  <Icon size={18} strokeWidth={2} style={{ flexShrink: 0 }} />
+                  <Icon size={20} strokeWidth={2} style={{ flexShrink: 0 }} />
                   {!collapsed && (
                     <>
                       {/* `nowrap` : c'est le libellé le plus long qui fixe la
@@ -396,7 +403,7 @@ export default function Sidebar(props: SidebarProps) {
           role="menu"
           style={{
             background: "var(--color-card-bg, #FFFFFF)", border: "none",
-            borderRadius: 10, boxShadow: "var(--elev-overlay)", padding: 4,
+            borderRadius: "var(--radius-card)", boxShadow: "var(--elev-overlay)", padding: 4,
           }}
         >
           <>

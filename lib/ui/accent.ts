@@ -13,6 +13,8 @@
  * `tr4de-accent-init` de app/layout.tsx (évite le flash de l'ancienne couleur).
  */
 
+import { readableInk } from "./color";
+
 export const ACCENT_KEY = "tr4de_accent";
 export const ACCENT_2_KEY = "tr4de_accent_2";
 
@@ -57,6 +59,23 @@ export function readAccent(): { primary: string; secondary: string } {
     if (s && isHexColor(s)) secondary = s;
   } catch {}
   return { primary, secondary };
+}
+
+/**
+ * L'encre lisible sur un APLAT PLEIN de l'accent (pastille d'action, bouton
+ * flottant).
+ *
+ * Elle ne peut pas être une variable CSS : choisir entre l'encre et le blanc
+ * demande de comparer deux ratios de contraste, ce que CSS ne sait pas faire,
+ * et l'accent est un réglage utilisateur — « Charbon & or » vaut #232323, sur
+ * lequel l'encre rend 1,2:1, quand Macaw demande l'inverse. Une valeur figée se
+ * tromperait donc sur un préréglage ou sur l'autre.
+ *
+ * Côté serveur, l'accent livré par défaut est la bonne réponse : c'est celui
+ * que le premier rendu affiche de toute façon.
+ */
+export function accentInk(): string {
+  return readableInk(readAccent().primary);
 }
 
 /** Applique les teintes à <html> et les enregistre. */

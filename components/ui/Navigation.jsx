@@ -1,10 +1,17 @@
 "use client";
 
-import { useState } from "react";
-
+/**
+ * Barre d'onglets horizontale. Aucun écran ne la monte aujourd'hui — elle
+ * précède la coquille de `DashboardNew` —, mais elle portait encore six
+ * couleurs écrites en dur (#6366F1, #0F0F1A, #E8E9EF…) qui n'appartiennent à
+ * aucune palette de l'app et ne suivaient donc pas le thème sombre. Elle est
+ * ramenée sur les tokens et sur la mécanique de la DA : rayon 12, cible de 44,
+ * item actif à l'aplat de l'accent. Aucune arête — une barre de navigation est
+ * une surface, pas un objet posé.
+ */
 export default function Navigation({ currentPage, setCurrentPage }) {
   const navItems = [
-    { id: "dashboard", label: "📊 Dashboard", icon: "📊" },
+    { id: "dashboard", label: "Tableau de bord" },
   ];
 
   return (
@@ -14,46 +21,43 @@ export default function Navigation({ currentPage, setCurrentPage }) {
           display: flex;
           gap: 8px;
           padding: 16px;
-          background: #FFFFFF;
-          border-bottom: 1px solid #E8E9EF;
+          background: var(--color-card-bg);
+          border-bottom: 2px solid var(--color-border);
           flex-wrap: wrap;
           align-items: center;
         }
-        
+
         .nav-item {
-          padding: 10px 16px;
-          border-radius: 8px;
+          min-height: 44px;
+          padding: 12px 16px;
+          border-radius: var(--radius-card);
           background: transparent;
-          color: #6B6C80;
-          border: 1px solid transparent;
+          color: var(--color-nav-text);
+          border: none;
           cursor: pointer;
-          font-weight: 500;
-          font-size: 14px;
-          transition: all 0.2s ease;
+          font-family: inherit;
+          font-weight: var(--fw-medium);
+          font-size: var(--text-callout);
+          transition: var(--tr-ui);
           white-space: nowrap;
         }
-        
+
         .nav-item:hover {
-          background: #F7F8FA;
-          color: #0F0F1A;
+          background: var(--color-nav-hover-bg);
+          color: var(--color-text);
         }
-        
+
         .nav-item.active {
-          background: #6366F1;
-          color: white;
-          border-color: #6366F1;
-        }
-        
-        .nav-item.active:hover {
-          background: #4F46E5;
-          color: white;
+          background: var(--color-nav-active-bg);
+          color: var(--color-nav-active-text);
         }
       `}</style>
-      
+
       {navItems.map((item) => (
         <button
           key={item.id}
           className={`nav-item ${currentPage === item.id ? "active" : ""}`}
+          aria-current={currentPage === item.id ? "page" : undefined}
           onClick={() => setCurrentPage(item.id)}
         >
           {item.label}
