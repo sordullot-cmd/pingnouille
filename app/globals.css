@@ -1094,25 +1094,45 @@ button, [role="button"] {
   font-weight: var(--fw-medium, 500);
 }
 
-/* === Press feedback : tous les boutons réagissent au clic ===
-   Donne un sentiment de tactilité — l'UI écoute. Désactivé via
-   `data-no-press` (ex. boutons icône inline qu'on ne veut pas faire bouger). */
-button:not([data-no-press]):not(:disabled) {
+/* === L'appui se joue sur l'ARÊTE, pas sur l'échelle ===
+   Relevé sur la référence : c'est l'arête basse qui donne l'effet « touche de
+   clavier ». À l'appui, elle tombe à 0 et l'élément descend d'autant — il
+   s'enfonce dans la page. Une mise à l'échelle, elle, rétrécit l'objet sans
+   rien dire de sa surface, et sur un bouton à arête elle produit même deux
+   mouvements contradictoires.
+
+   `--arete-y` est posé par le composant, qui connaît sa métrique (BTN.arete
+   pour un bouton, 6 pour une carte). `data-arete` marque les éléments qui ont
+   une arête à faire tomber : un bouton désactivé ne le porte pas.
+
+   Le retour à l'échelle reste pour tout ce qui n'a pas d'arête — un bouton
+   fantôme, une icône de barre d'outils : ils n'ont rien à enfoncer. */
+[data-arete] {
+  transition: transform var(--dur-instant) var(--ease-out), box-shadow var(--dur-instant) var(--ease-out);
+}
+[data-arete]:not(:disabled):active {
+  transform: translateY(var(--arete-y, 4px));
+  box-shadow: none;
+}
+
+button:not([data-no-press]):not([data-arete]):not(:disabled) {
   transition: transform 160ms var(--ease-out);
 }
-button:not([data-no-press]):not(:disabled):active {
+button:not([data-no-press]):not([data-arete]):not(:disabled):active {
   transform: scale(0.97);
 }
 
-/* === Hover lift sur les cartes ===
-   Une carte (data-card) se soulève légèrement au survol — uniquement
-   sur les pointeurs précis (pas le tactile, qui déclenche hover au tap). */
+/* === Survol d'une carte : la bordure, rien d'autre ===
+   Une carte ne se soulève plus. Un bloc à arête est POSÉ — c'est exactement ce
+   que son arête dit —, et le faire léviter d'un pixel contredit la seule chose
+   que la mécanique de surface affirme. Ce qui reste est la bordure, qui passe
+   d'un cran. */
 [data-card] {
-  transition: transform 200ms var(--ease-out), box-shadow 200ms var(--ease-out), border-color 200ms var(--ease-out);
+  transition: border-color 200ms var(--ease-out);
 }
 @media (hover: hover) and (pointer: fine) {
   [data-card]:hover {
-    transform: translateY(-1px);
+    border-color: var(--color-border-strong);
   }
 }
 
@@ -1269,12 +1289,12 @@ button:not([data-no-press]):not(:disabled):active {
   transform: rotate(180deg);
 }
 
-/* === Hover lift utility (à appliquer librement) === */
+/* === `.hover-lift` : conservée, mais elle ne soulève plus ===
+   Même raison que les cartes : rien de posé ne lévite dans cette DA. La classe
+   reste (elle est posée dans quelques vues) et se contente désormais de la
+   transition, pour ne pas avoir à la retirer une par une. */
 .hover-lift {
-  transition: transform var(--dur-base) var(--ease-out), box-shadow var(--dur-base) var(--ease-out);
-}
-@media (hover: hover) and (pointer: fine) {
-  .hover-lift:hover { transform: translateY(-1px); }
+  transition: var(--tr-ui);
 }
 
 /* === Inputs / selects / textarea : transitions homogènes sur focus / hover ===
@@ -2358,9 +2378,22 @@ body.tr4de-scroll-locked {
 /* ─── Accessibilité : les trois préférences système ────────────────────── */
 
 @media (prefers-reduced-motion: reduce) {
+  /* Aucun DÉPLACEMENT et aucune célébration : c'est le mouvement qui gêne, pas
+     le changement d'état. Il reste donc l'opacité et la couleur, qui disent la
+     même chose sans rien faire bouger.
+     Étendu ici plutôt que dans un second bloc : une media query n'ajoute
+     aucune spécificité, et deux blocs se seraient écrasés selon leur ordre —
+     c'est exactement le bug qu'avait connu `.anim-pop`. */
+  .anim-level-pop { animation: none !important; }
+  [data-arete]:not(:disabled):active,
+  button:not([data-no-press]):not(:disabled):active {
+    transform: none !important;
+  }
+  /* L'arête, elle, tombe toujours : c'est un changement d'ÉTAT, pas un
+     déplacement — le bouton dit qu'il est enfoncé sans bouger. */
+
   /* Mouvement réduit ne veut pas dire aucun retour : la feuille cesse de
-     GLISSER (c'est le déplacement qui gêne, pas le changement d'état) et se
-     contente d'un fondu. */
+     GLISSER et se contente d'un fondu. */
   .tr4de-sheet {
     animation: scrimIn var(--dur-base) var(--ease-out) both;
     transition: opacity var(--dur-base) var(--ease-out);
