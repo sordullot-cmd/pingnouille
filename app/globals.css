@@ -2162,9 +2162,12 @@ button img,
 .tr4de-tab-fab {
   transition: transform var(--dur-fast) var(--ease-out), box-shadow var(--dur-fast) var(--ease-out);
 }
+/* L'appui de la pastille d'action suit la même règle que les boutons : son
+   arête tombe et elle descend d'autant. Elle rétrécissait, ce qui ne dit rien
+   de sa surface. */
 .tr4de-tab:active .tr4de-tab-fab {
-  transform: scale(0.9);
-  box-shadow: 0 1px 4px color-mix(in srgb, var(--accent) 30%, transparent);
+  transform: translateY(4px);
+  box-shadow: none;
 }
 
 /* ─── Feuille basse ────────────────────────────────────────────────────── */

@@ -47,17 +47,23 @@ import {
    var(--color-*), donc le thème sombre bascule nativement). */
 
 const css = `
-  body { background: ${T.bg}; color: ${T.text}; font-family: var(--font-sans); min-height: 100vh; font-size: 14px; }
+  /* Taille en rem et non en pixels figés : elle suit alors le réglage de taille
+     de texte du système. Cette règle prime sur le --text-body (13) que
+     globals.css pose sur body — l'écart des deux est antérieur à la DA et se
+     voit sur tout texte qui ne déclare pas sa taille. */
+  body { background: ${T.bg}; color: ${T.text}; font-family: var(--font-sans); min-height: 100vh; font-size: var(--text-callout); }
   button { font-family: inherit; cursor: pointer; }
   select { font-family: inherit; }
   /* Pas d'animation d'entrée de page : anim-1 / anim-2 sont neutralisés
      globalement (globals.css). */
   .nav-item:hover { background: ${T.accentBg} !important; }
-  .card-hover:hover { border-color: ${T.border2} !important; box-shadow: 0 4px 12px rgba(0,0,0,.06) !important; }
+  /* La bordure seule : un bloc à arête est posé, il ne se soulève pas et ne
+     projette pas d'ombre au survol. */
+  .card-hover:hover { border-color: ${T.border2} !important; }
 `;
 
 /* Pages portées à la nouvelle DA : le conteneur de contenu les laisse posées à
-   même le fond gris du shell, sans cadre blanc pleine page — elles posent leurs
+   même le fond de la coquille, sans cadre pleine page — elles posent leurs
    propres cartes, gèrent leur gouttière et peuvent la reprendre en marge négative
    (cf. --page-gutter).
    Une page rejoint cette liste quand ses blocs sont devenus des cartes `CARD` —

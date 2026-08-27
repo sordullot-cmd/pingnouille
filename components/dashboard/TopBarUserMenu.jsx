@@ -59,7 +59,7 @@ export default function TopBarUserMenu({ user, onProfile, onSettings, onDarkMode
         role="menu"
         style={{
           background: "#FFFFFF", border: "1px solid #E5E5E5", borderRadius: 10,
-          boxShadow: "0 8px 24px rgba(0,0,0,0.10)", padding: 4,
+          boxShadow: "var(--elev-overlay)", padding: 4,
           fontFamily: "var(--font-sans)",
         }}
       >
