@@ -20,6 +20,10 @@
 
 const HEX = /^#(?:[0-9a-f]{3}|[0-9a-f]{6})$/i;
 
+/** L'encre de l'app (`--color-text` en clair). Un neutre de globals.css, pas
+ *  une teinte de la charte — cf. `readableInk`. */
+const INK = "#0D0D0D";
+
 /** Les trois canaux d'un `#RGB` ou `#RRGGBB`, ou `null` si ce n'en est pas un. */
 function channels(hex: string): [number, number, number] | null {
   if (!HEX.test(hex)) return null;
@@ -174,6 +178,31 @@ export function inkOn(color: string, bg: string, ratio = 4.5): string {
   let out = color;
   for (let i = 0; i < 20 && contrast(out, bg) < ratio; i++) out = shade(out, 0.1);
   return out;
+}
+
+/**
+ * L'encre lisible sur `bg` : l'encre de l'app ou le blanc, celui des deux qui
+ * contraste le plus.
+ *
+ * Sert aux aplats dont la couleur n'est PAS connue à l'écriture — l'aplat de
+ * l'accent, qui est un réglage utilisateur libre. Les aplats fixes de la
+ * charte, eux, portent l'encre en dur dans leur variante (`T.encreSurCouleur`)
+ * parce que le calcul y donnerait toujours la même réponse.
+ *
+ * Pourquoi pas un seuil de luminance : il faudrait le choisir, et tout seuil
+ * se trompe autour de sa valeur. Ici la question posée est exactement celle à
+ * laquelle il faut répondre — « lequel des deux se lit le mieux ? » —, et les
+ * deux ratios se calculent. Sans cette fonction, la règle « toujours l'encre »
+ * rendrait 1,2:1 sur le préréglage « Charbon & or » (#232323), c'est-à-dire
+ * l'inverse de ce que l'accessibilité demande.
+ *
+ * Une couleur non hexadécimale (une `var()`, cf. en-tête) ne peut pas être
+ * mesurée : on rend l'encre, qui est la réponse juste sur la grande majorité
+ * des aplats de la charte.
+ */
+export function readableInk(bg: string): string {
+  if (!HEX.test(bg)) return INK;
+  return contrast(INK, bg) >= contrast("#FFFFFF", bg) ? INK : "#FFFFFF";
 }
 
 /**

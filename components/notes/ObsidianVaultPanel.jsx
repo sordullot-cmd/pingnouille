@@ -92,7 +92,7 @@ export default function ObsidianVaultPanel({ vault }) {
         style={{
           ...ACTION,
           background: T.white,
-          boxShadow: T.elevPill,
+          boxShadow: T.areteBouton,
           border: "none",
           color: T.text,
         }}

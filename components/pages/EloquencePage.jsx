@@ -75,9 +75,9 @@ function uid() {
   return Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
 }
 
-/* Styles partagés : carte sans bordure posée sur l'ombre douce `elevCard`,
-   boutons à la métrique 12 px / Medium des autres pages, et aucune couleur en
-   dur — `#fff` sur un aplat `T.text` devient invisible en thème sombre. */
+/* Styles partagés : carte posée sur son arête basse (cf. `CARD` de da.jsx),
+   boutons à la métrique des autres pages, et aucune couleur en dur — `#fff` sur
+   un aplat `T.text` devient invisible en thème sombre. */
 const card = { ...CARD, padding: 20, boxSizing: "border-box" };
 const SURFACE = FIELD_BG;
 const pill = (active) => ({

@@ -14,6 +14,9 @@ export const T = {
   surface:  "var(--color-card-bg, #FFFFFF)",
   border:   "var(--color-border, #E5E5E5)",
   border2:  "var(--color-border-strong, #D4D4D4)",
+  /* Creux : champ de saisie, piste d'un segmenté, boîte d'icône, bouton
+     désactivé. Pas `--color-bg-subtle`, dont le rôle s'inverse en sombre. */
+  surfaceCreuse: "var(--color-surface-creuse, #F7F7F7)",
   text:     "var(--color-text, #0D0D0D)",
   textSub:  "var(--color-text-sub, #5C5C5C)",
   textMut:  "var(--color-text-muted, #6B6B6B)",
@@ -30,6 +33,12 @@ export const T = {
   amberBg:  "var(--color-amber-bg, color-mix(in srgb, #FF9600 12%, transparent))",
   amberBd:  "var(--color-amber-bd, color-mix(in srgb, #FF9600 45%, transparent))",
   blue:     "var(--color-blue, #1CB0F6)",
+  /* Le même Macaw sous son NOM DE RÔLE : sélection, état actif, action neutre.
+     Là où l'interface posait un aplat d'encre noire pour dire « action
+     principale », c'est `action` qu'il faut — le vert ne dit plus que le
+     succès. Une seule valeur, deux noms : `blue` est la teinte, `action` est
+     ce qu'on en fait. */
+  action:   "var(--color-action, #1CB0F6)",
   blueBd:   "var(--color-blue-bd, color-mix(in srgb, #1CB0F6 45%, transparent))",
   blueBg:   "var(--color-blue-bg, color-mix(in srgb, #1CB0F6 12%, transparent))",
   purple:   "var(--color-purple, #CE82FF)",
@@ -87,12 +96,34 @@ export const T = {
   segmentTrack: "var(--color-segment-track, rgba(28,31,33,0.05))",
   // Ligne de tableau mise en avant
   rowHighlight: "var(--color-row-highlight, rgba(13,13,13,0.04))",
-  // Ombres
-  elevCard: "var(--elev-card, 0 0 2.2px 0 rgba(0,0,0,0.07))",
-  elevPill: "var(--elev-pill, 0 0 1.1px rgba(0,0,0,0.07))",
+  /* ── Arêtes ─────────────────────────────────────────────────────────────
+     Un bloc a une ÉPAISSEUR, pas une ombre : arête basse en aplat solide d'un
+     ton plus foncé de la même famille. `T.elevCard` et `T.elevPill` — les deux
+     ombres floues d'avant — n'existent plus ; une carte prend `areteCarte`,
+     une pastille posée prend `areteBouton`, et ce qui ne se soulève plus ne
+     prend rien du tout.
+     Les cinq arêtes colorées servent aux VARIANTES de bouton, qui recomposent
+     l'ombre avec leur propre couleur : `boxShadow: \`0 ${BTN.md.arete}px 0
+     ${T.areteAction}\``. */
+  arete:          "var(--color-arete, #E5E5E5)",
+  areteAction:    "var(--color-arete-action, #1899D6)",
+  areteSucces:    "var(--color-arete-succes, #58A700)",
+  areteAlerte:    "var(--color-arete-alerte, #EA2B2B)",
+  areteAttention: "var(--color-arete-attention, #CD7900)",
+  areteInfo:      "var(--color-arete-info, #9069CD)",
+  /** Arête d'une carte : 6 px (relevé — carte de liste 104/12 px sur 758). */
+  areteCarte:     "var(--arete-carte, 0 6px 0 #E5E5E5)",
+  /** Arête d'un bouton neutre : 4 px (relevé — CTA 88/8 px sur 758). */
+  areteBouton:    "var(--arete-bouton, 0 4px 0 #E5E5E5)",
   // Encre sur fond contrasté
   textInverted: "var(--color-text-inverted, #FFFFFF)",
   onSolid:      "var(--color-on-solid, #FFFFFF)",
+  /* Encre d'un libellé posé sur un aplat de couleur PLEINE de la charte. Blanc
+     sur Owl ne rend que 2,09:1, sur Bee 1,55:1 : l'encre y rend 9,30 et 12,51.
+     Ne vaut que pour les aplats fixes — sur l'aplat de l'accent, qui est un
+     réglage utilisateur libre, l'encre se choisit à l'exécution avec
+     `readableInk()` (lib/ui/color.ts). */
+  encreSurCouleur: "var(--color-encre-sur-couleur, #0D0D0D)",
   scrim:        "var(--color-scrim, rgba(0,0,0,0.45))",
 } as const;
 

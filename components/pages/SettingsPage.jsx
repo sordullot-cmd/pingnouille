@@ -131,7 +131,7 @@ function Card({ children, padded = true }) {
       border: `1px solid ${T.border}`,
       borderRadius: "var(--radius-card)",
       padding: padded ? 20 : 0,
-      boxShadow: "var(--elev-rest)",
+      boxShadow: T.areteCarte,
     }}>
       {children}
     </div>

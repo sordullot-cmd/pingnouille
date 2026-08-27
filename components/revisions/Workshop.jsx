@@ -60,7 +60,7 @@ function DraftCard({ draft, onToggle, onChange, onRemove }) {
     <div
       style={{
         background: T.white, borderRadius: 12, padding: 12,
-        boxShadow: T.elevCard, opacity: dim ? 0.45 : 1,
+        boxShadow: T.areteCarte, opacity: dim ? 0.45 : 1,
         transition: "var(--tr-ui)",
         display: "flex", flexDirection: "column", gap: 8,
       }}

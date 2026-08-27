@@ -2227,7 +2227,7 @@ function btnDark() {
 }
 // Bouton secondaire d'une modale.
 function btnGhost() {
-  return { padding: "8px 16px", minHeight: 34, borderRadius: 999, border: "none", background: T.white, boxShadow: T.elevPill, color: T.text, fontSize: 13, fontWeight: 500, cursor: "pointer", fontFamily: "inherit" };
+  return { padding: "8px 16px", minHeight: 34, borderRadius: 999, border: "none", background: T.white, boxShadow: T.areteBouton, color: T.text, fontSize: 13, fontWeight: 500, cursor: "pointer", fontFamily: "inherit" };
 }
 function iconBtn() {
   return { width: 32, height: 32, borderRadius: 8, border: "none", background: "transparent", color: T.textMut, cursor: "pointer", display: "inline-flex", alignItems: "center", justifyContent: "center", flexShrink: 0 };

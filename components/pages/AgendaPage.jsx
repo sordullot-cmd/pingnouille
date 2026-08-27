@@ -1224,7 +1224,7 @@ export default function AgendaPage() {
               fontSize: 13, fontWeight: 500, color: T.text,
               background: T.white, border: "none", cursor: "pointer",
               padding: "8px 16px", minHeight: 34, borderRadius: 999,
-              boxShadow: T.elevPill, fontFamily: "var(--font-sans)", textTransform: "capitalize",
+              boxShadow: T.areteBouton, fontFamily: "var(--font-sans)", textTransform: "capitalize",
             }}
           >
             {monthYearLabel(view, cursor)}
@@ -2164,14 +2164,14 @@ function FormRow({ icon: Icon, children, top = false, iconColor }) {
 
 /* ─────────────── Styles ───────────────
    Fabriques partagées par toute la page. C'est ici que passe le portage à la
-   nouvelle DA : les cartes perdent leur bordure au profit de l'ombre très douce
-   `elevCard`, les boutons prennent la métrique 12 px / Medium des autres pages,
+   nouvelle DA : les cartes se posent sur leur arête basse (`areteCarte`) au
+   lieu d'une ombre, les boutons prennent la métrique des autres pages,
    et plus aucun blanc n'est écrit en dur — `#fff` sur un aplat `T.text` devenait
    invisible en thème sombre, où cet aplat s'éclaircit. */
 /* Mêmes valeurs que la carte de da.jsx, écrites à plat plutôt qu'en `{...CARD}` :
    les appelants posent leur propre padding, et `CARD` clipperait au passage tout
    ce qui dépasse (un menu ouvert depuis une carte). */
-const card = () => ({ background: T.white, borderRadius: 12, boxShadow: T.elevCard });
+const card = () => ({ background: T.white, borderRadius: 12, boxShadow: T.areteCarte });
 const subInp = { padding: "5px 4px", fontSize: 14, fontFamily: "inherit", color: T.text, background: "transparent", border: "none", borderRadius: 6, outline: "none", cursor: "pointer" };
 const rowInp = { width: "100%", border: "none", outline: "none", background: "transparent", fontFamily: "inherit", fontSize: 14, color: T.text, padding: "5px 0", boxSizing: "border-box" };
 // Bouton "pilule" moderne (couleur, notification)

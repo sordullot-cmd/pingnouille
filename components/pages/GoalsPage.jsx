@@ -1400,7 +1400,7 @@ function TimelineRow({ goal: g, compute, unitOf, fmtVal, onEdit, onDelete, onDup
              du parent, une seconde ombre les ferait flotter. */
           background: overMode === "into" ? T.blueBg : (hover || open ? T.accentBg : T.white),
           border: nested ? `1px solid ${T.border}` : "none",
-          boxShadow: nested ? "none" : T.elevCard,
+          boxShadow: nested ? "none" : T.areteCarte,
           /* Ouvert, la carte perd ses coins bas : le panneau de détail se colle
              dessous et les deux ne forment plus qu'un bloc. */
           borderRadius: nested ? "var(--radius-card)" : (open ? "12px 12px 0 0" : 12),
@@ -1633,7 +1633,7 @@ function TimelineRow({ goal: g, compute, unitOf, fmtVal, onEdit, onDelete, onDup
           padding: nested ? "8px 10px" : "4px 14px 12px",
           background: T.accentBg,
           borderRadius: nested ? "var(--radius-card)" : "0 0 12px 12px",
-          boxShadow: nested ? "none" : T.elevCard,
+          boxShadow: nested ? "none" : T.areteCarte,
           borderTop: `1px solid ${T.border}`,
           marginTop: -2,
         }}>

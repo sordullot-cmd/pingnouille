@@ -980,7 +980,7 @@ function PhotosTab({ photos, setPhotos, onAdd, busy }) {
                   /* La vignette EST la carte : coins 12 et ombre douce comme les
                      autres, plus de cadre gris autour de l'image. */
                   <button key={p.id} type="button" onClick={() => setViewerId(p.id)}
-                    style={{ position: "relative", padding: 0, border: "none", borderRadius: 12, overflow: "hidden", background: FIELD_BG, boxShadow: T.elevCard, cursor: "pointer", fontFamily: "inherit", aspectRatio: "3 / 4" }}>
+                    style={{ position: "relative", padding: 0, border: "none", borderRadius: 12, overflow: "hidden", background: FIELD_BG, boxShadow: T.areteCarte, cursor: "pointer", fontFamily: "inherit", aspectRatio: "3 / 4" }}>
                     <img src={p.dataUrl} alt={fmtDate(p.date)} style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
                     <div style={{ position: "absolute", left: 0, right: 0, bottom: 0, padding: "18px 10px 8px", background: "linear-gradient(to top, rgba(0,0,0,0.62), transparent)", textAlign: "left" }}>
                       <div style={{ fontSize: 12, fontWeight: 500, color: "#fff", textTransform: "capitalize" }}>{fmtDate(p.date)}</div>
@@ -1611,7 +1611,7 @@ function SessionForm({ form, setForm, editingId, onClose, onSave, onDelete, cust
                     return (
                       <div key={p.id} style={{
                         position: "relative",
-                        background: T.white, border: "none", borderRadius: 10, boxShadow: T.elevPill,
+                        background: T.white, border: "none", borderRadius: 10, boxShadow: T.areteCarte,
                         padding: "8px 10px", display: "flex", flexDirection: "column", gap: 4,
                       }}>
                         <button type="button" onClick={() => applyPreset(p)}

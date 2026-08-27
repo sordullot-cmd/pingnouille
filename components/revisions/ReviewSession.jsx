@@ -282,7 +282,7 @@ export default function ReviewSession({ store, setStore, queue, openedAt, onExit
           d'un mot ne doit pas flotter en haut d'un bloc vide. */}
       <div
         style={{
-          background: T.white, borderRadius: 16, boxShadow: T.elevCard,
+          background: T.white, borderRadius: 16, boxShadow: T.areteCarte,
           padding: "40px 32px", minHeight: 260,
           display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
           textAlign: "center", gap: 20,

@@ -671,7 +671,7 @@ export function PeriodPills({ value, onChange, options = PERIODS, track = false,
               padding: "8px 16px",
               borderRadius:999, border:"none",
               background: active ? T.white : "transparent",
-              boxShadow: active ? (track ? T.elevCard : T.elevPill) : "none",
+              boxShadow: active ? T.areteBouton : "none",
               color: T.text, opacity: active ? 1 : 0.6,
               /* 600 et non le 500 des autres boutons : ces pastilles CADRENT
                  tout ce qu'on lit en dessous (la courbe, les totaux). On les
@@ -727,7 +727,7 @@ export function StepperPill({ label, onPrev, onNext, onLabel, labelTitle, prevLa
     <div style={{
       display:"flex", alignItems:"center", gap:8,
       height:34, padding: "8px 16px", minHeight: 34, borderRadius:999,
-      background:T.white, boxShadow:T.elevPill,
+      background:T.white, boxShadow:T.areteBouton,
     }}>
       <button
         type="button" onClick={onPrev} aria-label={prevLabel} disabled={prevDisabled}
@@ -1437,7 +1437,7 @@ export function PnlChart({ points, others, color, bleedLeft = true }) {
               transform: `translateY(-100%) translateY(-12px) ${flip ? "translateX(-100%) translateX(-8px)" : "translateX(8px)"}`,
               background: T.white,
               borderRadius: 8,
-              boxShadow: T.elevCard,
+              boxShadow: "var(--elev-overlay)",
               padding: "8px 10px",
               pointerEvents: "none",
               zIndex: 20,

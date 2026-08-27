@@ -1055,7 +1055,7 @@ function ProjectsCanvas({
                 background: T.white, border: `2px dashed ${T.text}`,
                 borderRadius: 10, padding: 12,
                 display: "flex", flexDirection: "column", gap: 8,
-                boxShadow: "var(--elev-hover)",
+                boxShadow: T.areteCarte,
               }}
               onPointerDown={(e) => e.stopPropagation()}
             >
@@ -1289,7 +1289,7 @@ function ProjectCard({
         left: px, top: py, width: pw, height: ph,
         background: project.color || T.white,
         border: `${isSelected ? 2 : 1}px solid ${isSelected ? T.text : (locked ? T.amber : T.border)}`,
-        boxShadow: isSelected ? "var(--elev-hover)" : "var(--elev-rest)",
+        boxShadow: T.areteCarte,
         borderRadius: "var(--radius-card)",
         cursor: locked ? "pointer" : "grab",
         display: "flex", flexDirection: "column",
@@ -2512,7 +2512,7 @@ function DriveToolbar({ recordingAudio, onAddImage, onAddNote, onAddLink, onAddV
         position: "absolute", ...posStyle,
         zIndex: 10,
         background: T.white, border: `1px solid ${T.border}`,
-        borderRadius: "var(--radius-card)", boxShadow: "var(--elev-hover)",
+        borderRadius: "var(--radius-card)", boxShadow: "var(--elev-overlay)",
         padding: 4, display: "inline-flex", alignItems: "center", gap: 2,
       }}
     >
@@ -2708,9 +2708,7 @@ function CanvasCard({ file, zoom = 1, selected, isTop, locked, previewUrl, audio
         border: isTop
           ? "1px solid transparent"
           : `1px solid ${locked ? T.amber : (selected ? T.text : T.border)}`,
-        boxShadow: isTop
-          ? "var(--elev-hover)"
-          : (selected ? "var(--elev-hover)" : "var(--elev-rest)"),
+        boxShadow: T.areteCarte,
         borderRadius: 10,
         cursor: locked ? "default" : "grab",
         zIndex: isTop ? 5 : 1,

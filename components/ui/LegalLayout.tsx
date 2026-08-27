@@ -47,7 +47,7 @@ export function LegalLayout({
         <article style={{
           background: T.white,
           borderRadius: 16,
-          boxShadow: T.elevCard,
+          boxShadow: T.areteCarte,
           padding: 32,
         }}>
           <h1 style={{ margin: 0, fontSize: 24, fontWeight: 500, letterSpacing: -0.2, color: T.text }}>
