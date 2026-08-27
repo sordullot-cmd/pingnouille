@@ -23,6 +23,31 @@ Les deux apps partagent :
 Les migrations SQL des tables de trading restent dans `tr4de/supabase/`. Ici on
 ne garde que celles qui touchent la productivité.
 
+### La seule chose que cette app lit chez l'autre : le P&L
+
+Un objectif peut se mesurer sur le P&L d'un compte de trading (« +2 000 $ ce
+mois-ci »), son win rate, son nombre de trades ou son drawdown — c'est la raison
+d'être de `lib/hooks/useTradingPnl.ts`, qui lit `apex_trades` et
+`trading_accounts` dans la base partagée, sous la session de l'utilisateur (les
+policies RLS filtrent déjà sur `user_id`).
+
+Trois règles à ne pas défaire :
+
+1. **Lecture seule.** Aucune écriture, aucun cache localStorage. Les trades
+   s'écrivent dans `tr4de` et nulle part ailleurs — deux sources d'écriture sur
+   les mêmes lignes est précisément ce que la séparation devait éviter. C'est
+   pourquoi ce hook est écrit à part et n'est pas une copie de `useTradeData`,
+   qui sait ajouter, modifier et supprimer.
+2. **Le P&L est NET de frais**, comme dans `tr4de` (`withNetPnl`, brut conservé
+   dans `pnlGross`). Sans cela un objectif afficherait un autre chiffre que le
+   tableau de bord de trading pour les mêmes trades.
+3. **`lib/tradeFees.ts` est dupliqué à l'identique** depuis `tr4de`. Le barème y
+   est épinglé en valeurs écrites par `tests/tradeFees.test.ts`, présent dans les
+   DEUX dépôts : changer le barème d'un seul côté casse l'autre, et c'est voulu.
+
+Une lecture qui échoue n'efface pas ce qui était affiché et laisse le reste de
+l'app utilisable : le P&L est un ornement de la page Objectifs, pas sa condition.
+
 ## Commands
 
 ```bash

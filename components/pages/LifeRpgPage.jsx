@@ -50,6 +50,7 @@ import Popover from "@/components/ui/Popover";
 import { XpBar } from "@/components/ui/XpBar";
 import { TimeField } from "@/components/pages/AgendaDateFields";
 import { useApp } from "@/lib/contexts/AppContext";
+import { useTradingPnl } from "@/lib/hooks/useTradingPnl";
 import { useUndo } from "@/lib/contexts/UndoContext";
 import { getLocalDateString } from "@/lib/dateUtils";
 import { nearestGcalColorId } from "@/lib/gcalColors";
@@ -170,7 +171,7 @@ function categoryLevel(xp) {
   return { level: info.level, intoLevel: info.intoLevel, neededForNext: info.neededForNext, levelPct: info.pct };
 }
 
-function computeProgress(habits, history, goals = [], taskRpg = {}, categories = []) {
+function computeProgress(habits, history, goals = [], trades = [], accounts = [], taskRpg = {}, categories = []) {
   const attributes = {};
   // Catégorie « Trading » réelle (par libellé/id) — l'XP de discipline y est
   // créditée plutôt qu'à un id figé, pour ne pas la disperser sur un doublon.
@@ -221,7 +222,7 @@ function computeProgress(habits, history, goals = [], taskRpg = {}, categories =
   for (const g of flattenGoals(goals)) {
     const xpFull = Math.max(0, parseInt(g.rpgXp, 10) || 0);
     if (!g.rpgCategory || xpFull <= 0) continue;
-    const { pct } = computeGoalProgress(g);
+    const { pct } = computeGoalProgress(g, trades, accounts);
     const gained = Math.round((pct / 100) * xpFull);
     if (gained <= 0) continue;
     totalXp += gained;
@@ -246,7 +247,7 @@ function computeProgress(habits, history, goals = [], taskRpg = {}, categories =
   // Une étape dont les objectifs rattachés sont tous atteints est franchie sans
   // avoir été cochée : elle doit rapporter le même XP, sinon le rattachement des
   // objectifs à une étape coûterait des points à qui s'en sert.
-  const goalPctsByStep = stepGoalPctsOf(categories, goals);
+  const goalPctsByStep = stepGoalPctsOf(categories, goals, trades, accounts);
   for (const cat of (categories || [])) {
     for (const step of readSteps(cat)) {
       if (!isStepDone(step, goalPctsOf(goalPctsByStep, step.id))) continue;
@@ -271,7 +272,7 @@ function computeProgress(habits, history, goals = [], taskRpg = {}, categories =
    changement de catégorie, son `rpgStep` pointe vers un jalon qui ne le concerne
    plus, et le laisser peser sur cette étape-là créerait un avancement venu de
    nulle part. Il redevient alors un objectif libre de sa nouvelle carte. */
-function stepGoalPctsOf(categories, goals) {
+function stepGoalPctsOf(categories, goals, trades, accounts) {
   const out = {};
   const flat = flattenGoals(goals);
   for (const cat of (categories || [])) {
@@ -279,7 +280,7 @@ function stepGoalPctsOf(categories, goals) {
     if (ids.length === 0) continue;
     const mine = flat.filter(g => g.rpgCategory === cat.id && g.rpgStep);
     Object.assign(out, groupGoalPctsByStep(
-      mine.map(g => ({ rpgStep: g.rpgStep, pct: computeGoalProgress(g).pct })),
+      mine.map(g => ({ rpgStep: g.rpgStep, pct: computeGoalProgress(g, trades, accounts).pct })),
       ids,
     ));
   }
@@ -380,6 +381,10 @@ export default function LifeRpgPage() {
   // Accès à Google Tasks : une tâche de carte est une VRAIE Google Task, visible
   // et cochable depuis l'Agenda (où sa complétion créditera l'XP de la carte).
   const gcal = useGoogleCalendar();
+  /* Un objectif rattaché à une étape peut se mesurer sur un P&L : l'avancement
+     de l'étape en dépend, donc l'XP de la carte aussi. Source partagée avec
+     GoalsPage, en lecture seule (cf. lib/hooks/useTradingPnl). */
+  const { trades, accounts } = useTradingPnl();
   const { pushUndo } = useUndo();
 
   // Migration : les anciennes sauvegardes n'avaient pas de `categories`.
@@ -455,12 +460,12 @@ export default function LifeRpgPage() {
   const habitsList = useMemo(() => (Array.isArray(habits) ? habits : []), [habits]);
   const goalsList = useMemo(() => (Array.isArray(goals) ? goals : []), [goals]);
 
-  const progress = useMemo(() => computeProgress(habitsList, habitHistory, goalsList, taskRpg, categories), [habitsList, habitHistory, goalsList, taskRpg, categories]);
+  const progress = useMemo(() => computeProgress(habitsList, habitHistory, goalsList, trades, accounts, taskRpg, categories), [habitsList, habitHistory, goalsList, trades, accounts, taskRpg, categories]);
   // Objectifs liés, regroupés par catégorie, avec leur avancement (pour les cartes).
   const goalsByCat = useMemo(() => {
     const map = {};
     const toEntry = (g) => {
-      const { current, target, pct, rawPct } = computeGoalProgress(g);
+      const { current, target, pct, rawPct } = computeGoalProgress(g, trades, accounts);
       const xpFull = Math.max(0, parseInt(g.rpgXp, 10) || 0);
       return {
         id: g.id, label: g.label, pct, rawPct: rawPct != null ? rawPct : pct, current, target, unit: goalUnitOf(g),
@@ -478,12 +483,12 @@ export default function LifeRpgPage() {
       (map[g.rpgCategory] = map[g.rpgCategory] || []).push(entry);
     }
     return map;
-  }, [goalsList]);
+  }, [goalsList, trades, accounts]);
   // Avancement des objectifs rattachés à une étape — la frise de l'année en a
   // besoin pour montrer franchis les jalons que leurs chiffres ont acquis.
   const stepGoalPcts = useMemo(
-    () => stepGoalPctsOf(categories, goalsList),
-    [categories, goalsList],
+    () => stepGoalPctsOf(categories, goalsList, trades, accounts),
+    [categories, goalsList, trades, accounts],
   );
   // Tâches liées, regroupées par catégorie (pour les afficher sur les cartes).
   // Dérivées de `taskRpg` (titre + état terminé) + `taskTimes` (jour planifié).

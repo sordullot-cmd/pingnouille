@@ -12,6 +12,7 @@ import { getCurrencySymbol } from "@/lib/userPrefs";
 // Coquille de modale et boutons de la nouvelle DA (pages Comptes / Calendrier) :
 // le formulaire d'objectif s'y range plutôt que d'inventer sa propre fenêtre.
 import { ModalShell, PrimaryBtn } from "@/components/ui/modalShell";
+import { useTradingPnl } from "@/lib/hooks/useTradingPnl";
 import { useCloudState } from "@/lib/hooks/useCloudState";
 import { useFirstLoad } from "@/lib/hooks/useFirstLoad";
 import { PageSkeleton } from "@/components/ui/Skeleton";
@@ -89,31 +90,136 @@ const CATEGORIES = [
 export function goalCategoryOf(g) {
   return CATEGORIES.find(c => c.id === g?.category) || CATEGORIES[0];
 }
-/* Sources de suivi. Il n'en reste qu'une : le compteur qu'on avance à la main.
-   Les sources automatiques (P&L, win rate, nombre de trades, drawdown, type de
-   compte) lisaient les trades ; elles vivent avec eux dans l'app trading. Un
-   objectif importé qui les portait retombe sur « manuel » (cf. la migration
-   plus bas) : sa cible et son avancement sont conservés, c'est le calcul
-   automatique qui disparaît. */
+// Sources de suivi. `trading: true` = calculé à partir des trades et filtré
+// sur l'horizon de l'objectif. Ces types ne sont proposés qu'en catégorie
+// "Trading".
 const AUTO_TYPES = [
-  { id: "manual", label: "Manuel", unit: "", trading: false, group: "Général" },
+  { id: "manual",     label: "Manuel",              unit: "",  trading: false, group: "Général" },
+  { id: "pnl",        label: "P&L (sur l'horizon)", unit: "$", trading: true,  group: "P&L" },
+  { id: "pnl_day",    label: "P&L du jour",         unit: "$", trading: true,  group: "P&L", horizon: "day"   },
+  { id: "pnl_week",   label: "P&L de la semaine",   unit: "$", trading: true,  group: "P&L", horizon: "week"  },
+  { id: "pnl_month",  label: "P&L du mois",         unit: "$", trading: true,  group: "P&L", horizon: "month" },
+  { id: "pnl_year",   label: "P&L de l'année",      unit: "$", trading: true,  group: "P&L", horizon: "year"  },
+  { id: "winrate",    label: "Win rate",            unit: "%", trading: true,  group: "Performance" },
+  { id: "trades",     label: "Nb de trades",        unit: "",  trading: true,  group: "Performance" },
+  { id: "max_dd",     label: "Drawdown max",        unit: "$", trading: true,  group: "Risque" },
+  { id: "account_type", label: "Type de compte",    unit: "",  trading: true,  group: "Compte" },
 ];
 
+
 /* ---------- Helpers ---------- */
+function dayRange() {
+  const now = new Date();
+  const start = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0);
+  const end   = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59);
+  return { start, end };
+}
+function weekRange() {
+  const now = new Date();
+  const dow = now.getDay();
+  const start = new Date(now);
+  start.setDate(now.getDate() + (dow === 0 ? -6 : 1 - dow));
+  start.setHours(0, 0, 0, 0);
+  const end = new Date(start); end.setDate(start.getDate() + 6); end.setHours(23, 59, 59);
+  return { start, end };
+}
+function monthRange() {
+  const now = new Date();
+  return { start: new Date(now.getFullYear(), now.getMonth(), 1), end: new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59) };
+}
+function yearRange() {
+  const now = new Date();
+  return { start: new Date(now.getFullYear(), 0, 1), end: new Date(now.getFullYear(), 11, 31, 23, 59, 59) };
+}
+function tradesInRange(trades, start, end) {
+  return (trades || []).filter(t => {
+    const d = new Date(t.date);
+    return !isNaN(d.getTime()) && d >= start && d <= end;
+  });
+}
+function daysLeft(deadline) {
+  if (!deadline) return null;
+  const d = new Date(deadline + "T23:59:59");
+  if (isNaN(d.getTime())) return null;
+  return Math.ceil((d - new Date()) / (1000 * 60 * 60 * 24));
+}
+// Nombre de jours OUVRÉS (lun-ven) entre deux dates. Les marchés étant fermés le
+// week-end, le rythme des objectifs trading se calcule sur ces seuls jours.
+function businessDaysBetween(from, to) {
+  if (!(from instanceof Date) || !(to instanceof Date) || to <= from) return 0;
+  const cur = new Date(from); cur.setHours(0, 0, 0, 0);
+  const end = new Date(to);   end.setHours(0, 0, 0, 0);
+  let count = 0;
+  while (cur < end) {
+    const dow = cur.getDay();
+    if (dow !== 0 && dow !== 6) count++;
+    cur.setDate(cur.getDate() + 1);
+  }
+  return count;
+}
+
+// Fenêtre temporelle selon l'horizon (pour les métriques trading).
+function rangeOf(horizon) {
+  if (horizon === "day") return dayRange();
+  if (horizon === "week") return weekRange();
+  if (horizon === "year") return yearRange();
+  return monthRange();
+}
+
 
 // Calcule { current, target, pct } d'un objectif. Pur : dépend uniquement de
 // l'objectif et des données passées (trades, comptes). Réutilisé tel quel par la
 // page « Vie RPG » pour dériver l'XP des catégories rattachées.
-export function computeGoalProgress(g) {
+export function computeGoalProgress(g, trades = [], accounts = []) {
   const tgt = parseFloat(g.target) || 0;
-  const current = parseFloat(g.manual) || 0;
+  const at = AUTO_TYPES.find(a => a.id === g.autoType);
+  const horizonForCompute = at?.horizon || g.horizon || "month";
+  const { start, end } = rangeOf(horizonForCompute);
+  // Filtre de compte : "all" (aucun filtre), "type:<live|eval|funded>" (tous les
+  // comptes d'un type donné, ex. « Tous les comptes funded ») ou un id précis.
+  const accountFilter = g.accountIdFilter && g.accountIdFilter !== "all" ? g.accountIdFilter : null;
+  let scopedTrades = trades || [];
+  if (accountFilter) {
+    if (String(accountFilter).startsWith("type:")) {
+      const wantedType = String(accountFilter).slice(5);
+      const idsOfType = new Set(
+        (accounts || [])
+          .filter(a => (a.account_type || "live") === wantedType)
+          .map(a => String(a.id))
+      );
+      scopedTrades = (trades || []).filter(t => idsOfType.has(String(t.account_id)));
+    } else {
+      scopedTrades = (trades || []).filter(t => String(t.account_id) === String(accountFilter));
+    }
+  }
+  let current = 0;
+  if (g.autoType === "manual") current = parseFloat(g.manual) || 0;
+  else if (g.autoType === "pnl" || (g.autoType || "").startsWith("pnl_")) current = tradesInRange(scopedTrades, start, end).reduce((s, t) => s + (t.pnl || 0), 0);
+  else if (g.autoType === "winrate") {
+    const list = tradesInRange(scopedTrades, start, end);
+    const w = list.filter(t => (t.pnl || 0) > 0).length;
+    const l = list.filter(t => (t.pnl || 0) < 0).length;
+    current = (w + l) > 0 ? (w / (w + l)) * 100 : 0;
+  }
+  else if (g.autoType === "trades") current = tradesInRange(scopedTrades, start, end).length;
+  else if (g.autoType === "account_type") {
+    const wanted = g.accountTypeFilter || "live";
+    current = (accounts || []).filter(a => (a.account_type || "live") === wanted).length;
+  }
+  else if (g.autoType === "max_dd") {
+    const list = tradesInRange(scopedTrades, start, end).sort((a, b) => new Date(a.date) - new Date(b.date));
+    let peak = 0, cum = 0, mdd = 0;
+    for (const tr of list) { cum += (tr.pnl || 0); if (cum > peak) peak = cum; if (peak - cum > mdd) mdd = peak - cum; }
+    current = mdd;
+  }
   // rawPct : pourcentage NON borné (peut être négatif) — sert à l'affichage du
-  // « % » et à signaler un objectif dans le rouge.
+  // « % » et à signaler un objectif dans le rouge (ex. compte de trading en perte).
   // pct : borné 0-100, utilisé pour la largeur de barre et la dérivation d'XP RPG.
   const rawPct = tgt === 0 ? 0 : (current / tgt) * 100;
   const pct = Math.max(0, Math.min(100, rawPct));
   return { current, target: tgt, pct, rawPct };
 }
+
 
 // Statut de RYTHME (« pace ») d'un objectif : compare l'avancement réel à
 // l'avancement ATTENDU si l'on progressait linéairement sur la fenêtre de temps
@@ -121,13 +227,27 @@ export function computeGoalProgress(g) {
 // en avance ou en retard sur le tempo nécessaire pour tenir l'échéance ? ».
 // Pur et déterministe (hormis l'instant présent). Renvoie null quand il n'y a
 // pas de fenêtre temporelle exploitable (ni horizon trading ni deadline), ou
-// La fenêtre est celle de la DEADLINE : sans échéance, il n'y a pas de tempo à
-// comparer, et l'ancien repli sur l'horizon d'une métrique de trading n'a plus
-// d'objet ici.
+// pour le drawdown (logique inversée, le pace n'a pas de sens).
+//   - Objectif trading auto → fenêtre = celle de son horizon (jour/semaine/mois/année).
+//   - Objectif manuel/autre avec deadline → fenêtre = [création, deadline].
 export function computeGoalPace(g, current, target, pct) {
-  if (!g || !g.deadline) return null;
-  const end = new Date(g.deadline + "T23:59:59");
-  const start = g.createdAt ? new Date(g.createdAt) : new Date(g.id);
+  if (!g || g.autoType === "max_dd") return null;
+  const at = AUTO_TYPES.find(a => a.id === g.autoType);
+  let start, end;
+  // La DEADLINE fixée par l'utilisateur PRIME toujours : le rythme doit se
+  // calculer sur cette durée (« 10 000 € en 30 j » → / 30 j). Sinon, pour un
+  // objectif trading créé en fin de mois, on diviserait par les 2-3 jours
+  // restants de la fenêtre civile → rythme requis aberrant (≈ 3k/jour).
+  if (g.deadline) {
+    end = new Date(g.deadline + "T23:59:59");
+    start = g.createdAt ? new Date(g.createdAt) : new Date(g.id);
+  } else if (at?.trading) {
+    const r = rangeOf(at.horizon || g.horizon || "month");
+    start = r.start; end = r.end;
+  } else {
+    return null;
+  }
+  if (!start || !end || isNaN(start.getTime()) || isNaN(end.getTime())) return null;
   if (!start || !end || isNaN(start.getTime()) || isNaN(end.getTime())) return null;
   const total = end.getTime() - start.getTime();
   if (total <= 0) return null;
@@ -138,15 +258,17 @@ export function computeGoalPace(g, current, target, pct) {
   const expectedPct = Math.round(timeFrac * 100);
   const delta = progressFrac - timeFrac; // > 0 = en avance, < 0 = en retard
 
-  // Rythme requis sur le temps restant pour atteindre la cible. Un compteur
-  // manuel s'accumule toujours : la condition d'additivité, qui écartait les
-  // métriques de taux (win rate) et d'état (type de compte), n'a plus d'objet.
-  const additive = true;
-  // Jours CIVILS : le décompte en jours ouvrés servait aux objectifs de trading,
-  // qui ne vivent plus ici — un objectif perso avance aussi le week-end.
-  const daysLeftForRate = (end.getTime() - now) / 86400000;
-  const wDiv = 7;
-  const mDiv = 30;
+  // Rythme requis sur le temps restant pour atteindre la cible — seulement pour
+  // les métriques ADDITIVES (un win rate ou un type de compte ne « s'accumule »
+  // pas par jour, le rythme n'aurait aucun sens).
+  const additive = g.autoType === "manual" || g.autoType === "trades" || (g.autoType || "").startsWith("pnl");
+  const isTrading = !!at?.trading || g.category === "trading";
+  // En trading, les marchés sont fermés le week-end : on ne compte que les jours
+  // OUVRÉS, une « semaine » = 5 jours de bourse et un « mois » ≈ 21. Hors trading,
+  // on garde les jours calendaires (semaine = 7, mois = 30).
+  const daysLeftForRate = isTrading ? businessDaysBetween(new Date(now), end) : (end.getTime() - now) / 86400000;
+  const wDiv = isTrading ? 5 : 7;
+  const mDiv = isTrading ? 21 : 30;
   const remaining = Math.max(0, target - current);
   let requiredRate = null, rateUnit = null;
   if (additive && daysLeftForRate > 0.5 && remaining > 0) {
@@ -335,6 +457,11 @@ function Donut({ pct, color, size = 56, stroke = 5 }) {
  */
 export default function GoalsPage({ embedded = false, registerCreate }) {
   useLang();
+  /* Trades et comptes viennent de l'app trading, par la base Supabase partagée
+     (cf. lib/hooks/useTradingPnl) : c'est ce qui permet à un objectif de se
+     mesurer sur un P&L réel au lieu d'un compteur recopié à la main. Lecture
+     seule — rien ici n'écrit un trade. */
+  const { trades, accounts } = useTradingPnl();
   const [goals, setGoals, goalsReady] = useCloudState(STORAGE_KEY, "goals", defaultGoals());
   const { pushUndo } = useUndo();
 
@@ -345,12 +472,7 @@ export default function GoalsPage({ embedded = false, registerCreate }) {
 
   // Migration : anciens autoType et anciens levels -> nouveaux
   useEffect(() => {
-    /* Les sources automatiques ont disparu avec les trades : tout autoType
-       inconnu retombe sur « manuel ». La cible reste, seul le calcul change. */
-    const autoMap  = Object.fromEntries(
-      ["trades_month", "trades", "pnl", "pnl_day", "pnl_week", "pnl_month", "pnl_year",
-       "winrate", "max_dd", "account_type"].map(id => [id, "manual"])
-    );
+    const autoMap  = { trades_month: "trades" };
     const levelMap = { easy: "low", medium: "normal", hard: "high" };
     let changed = false;
     const migrated = goals.map(g => {
@@ -378,7 +500,7 @@ export default function GoalsPage({ embedded = false, registerCreate }) {
   };
 
   // Modal d'ajout/édition
-  const emptyForm = { label: "", level: "normal", category: "personal", autoType: "manual", target: "", deadline: "", unit: "count", customUnit: "", rpgCategory: "", rpgXp: "" };
+  const emptyForm = { label: "", level: "normal", category: "personal", autoType: "manual", target: "", deadline: "", unit: "count", customUnit: "", accountTypeFilter: "live", accountIdFilter: "all", rpgCategory: "", rpgXp: "" };
   const [form, setForm] = useState(emptyForm);
   const [editingId, setEditingId] = useState(null);
   const [showForm, setShowForm] = useState(false);
@@ -393,7 +515,7 @@ export default function GoalsPage({ embedded = false, registerCreate }) {
     registerCreate?.(() => openCreateRef.current());
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-  const openEdit = (g) => { setForm({ label: g.label, level: g.level || "normal", category: g.category || "personal", autoType: g.autoType || "manual", target: String(g.target), deadline: g.deadline || "", unit: g.unit || "count", customUnit: g.customUnit || "", rpgCategory: g.rpgCategory || "", rpgXp: g.rpgXp != null ? String(g.rpgXp) : "" }); setEditingId(g.id); setShowForm(true); };
+  const openEdit = (g) => { setForm({ label: g.label, level: g.level || "normal", category: g.category || "personal", autoType: g.autoType || "manual", target: String(g.target), deadline: g.deadline || "", unit: g.unit || "count", customUnit: g.customUnit || "", accountTypeFilter: g.accountTypeFilter || "live", accountIdFilter: g.accountIdFilter || "all", rpgCategory: g.rpgCategory || "", rpgXp: g.rpgXp != null ? String(g.rpgXp) : "" }); setEditingId(g.id); setShowForm(true); };
   const close = () => { setForm(emptyForm); setEditingId(null); setShowForm(false); };
 
   // Auto-save : dès qu'un champ change et qu'il y a assez d'infos, on enregistre
@@ -416,6 +538,8 @@ export default function GoalsPage({ embedded = false, registerCreate }) {
           category: form.category, autoType: form.autoType,
           target: parseFloat(form.target), deadline: form.deadline, unit: form.unit,
           customUnit: form.customUnit || "",
+          accountTypeFilter: form.accountTypeFilter,
+          accountIdFilter: form.accountIdFilter,
           rpgCategory, rpgXp,
           // L'étape porteuse (« Quête de soi ») appartient à la carte quittée :
           // changer de carte, ou se détacher, la laisse pointer dans le vide.
@@ -430,6 +554,8 @@ export default function GoalsPage({ embedded = false, registerCreate }) {
           category: form.category, autoType: form.autoType,
           target: parseFloat(form.target), deadline: form.deadline, unit: form.unit,
           customUnit: form.customUnit || "",
+          accountTypeFilter: form.accountTypeFilter,
+          accountIdFilter: form.accountIdFilter,
           rpgCategory, rpgXp,
           manual: 0,
         }]);
@@ -526,7 +652,7 @@ export default function GoalsPage({ embedded = false, registerCreate }) {
   };
 
   // Compute current/target/pct pour un goal — délègue au helper module pur.
-  const compute = (g) => computeGoalProgress(g);
+  const compute = (g) => computeGoalProgress(g, trades, accounts);
   const unitOf = goalUnitOf;
   const fmtVal = fmtGoalVal;
 
@@ -543,7 +669,7 @@ export default function GoalsPage({ embedded = false, registerCreate }) {
     }
     return { total, achieved, onTrack, atRisk };
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [goals]);
+  }, [goals, trades]);
 
   if (useFirstLoad(goalsReady, STORAGE_KEY)) {
     return <PageSkeleton variant="list" label={t("nav.goals")} gap={16} stats={4} toolbarRight={[152]} />;
@@ -735,23 +861,55 @@ export default function GoalsPage({ embedded = false, registerCreate }) {
               style={{ ...goalInput(), flex: 1, minWidth: 0, MozAppearance: "textfield", appearance: "textfield" }}
               onFocus={(e) => { e.currentTarget.style.boxShadow = DA_FOCUS_RING; }}
               onBlur={(e) => { e.currentTarget.style.boxShadow = "none"; }} />
-            <div style={{ width: 150, flexShrink: 0 }}>
-              <FancyDropdown
-                variant="field"
-                value={form.unit}
-                options={UNITS}
-                onChange={(v) => setForm({ ...form, unit: v })}
-                renderValue={(u) => (
-                  <span style={{ fontSize: 13, fontWeight: 500, color: T.text }}>{u.label}</span>
-                )}
-                renderOption={(u, active) => (
-                  <>
-                    <span style={{ flex: 1 }}>{u.label}</span>
-                    {active && <Check size={12} strokeWidth={2.5} color={T.green} />}
-                  </>
-                )}
-              />
-            </div>
+            {form.autoType === "manual" ? (
+              <div style={{ width: 150, flexShrink: 0 }}>
+                <FancyDropdown
+                  variant="field"
+                  value={form.unit}
+                  options={UNITS}
+                  onChange={(v) => setForm({ ...form, unit: v })}
+                  renderValue={(u) => (
+                    <span style={{ fontSize: 13, fontWeight: 500, color: T.text }}>{u.label}</span>
+                  )}
+                  renderOption={(u, active) => (
+                    <>
+                      <span style={{ flex: 1 }}>{u.label}</span>
+                      {active && <Check size={12} strokeWidth={2.5} color={T.green} />}
+                    </>
+                  )}
+                />
+              </div>
+            ) : form.autoType === "account_type" ? (
+              <div style={{ width: 150, flexShrink: 0 }}>
+                <FancyDropdown
+                  variant="field"
+                  value={form.accountTypeFilter || "live"}
+                  options={[
+                    { id: "live",   label: "Live" },
+                    { id: "eval",   label: "Eval" },
+                    { id: "funded", label: "Funded" },
+                  ]}
+                  onChange={(v) => setForm({ ...form, accountTypeFilter: v })}
+                  renderValue={(o) => (
+                    <span style={{ fontSize: 13, fontWeight: 500, color: T.text }}>{o.label}</span>
+                  )}
+                  renderOption={(o, active) => (
+                    <>
+                      <span style={{ flex: 1 }}>{o.label}</span>
+                      {active && <Check size={12} strokeWidth={2.5} color={T.green} />}
+                    </>
+                  )}
+                />
+              </div>
+            ) : (() => {
+              const a = AUTO_TYPES.find(x => x.id === form.autoType);
+              const label = a?.unit === "$" ? getCurrencySymbol() : a?.unit === "%" ? "%" : "trades";
+              return (
+                <span style={{ flexShrink: 0, padding: "9px 14px", borderRadius: 8, background: T.accentBg, color: T.textSub, fontSize: 13, fontWeight: 500 }}>
+                  {label}
+                </span>
+              );
+            })()}
           </div>
           {form.autoType === "manual" && form.unit === "custom" && (
             <input type="text" value={form.customUnit}
@@ -775,7 +933,11 @@ export default function GoalsPage({ embedded = false, registerCreate }) {
               const active = form.category === c.id;
               return (
                 <button key={c.id} type="button"
-                  onClick={() => setForm({ ...form, category: c.id })}
+                  onClick={() => setForm(prev => {
+                    const next = { ...prev, category: c.id };
+                    if (c.id !== "trading" && AUTO_TYPES.find(a => a.id === prev.autoType)?.trading) next.autoType = "manual";
+                    return next;
+                  })}
                   title={c.label}
                   style={{
                     background: "transparent", border: "none", cursor: "pointer", fontFamily: "inherit",
@@ -802,6 +964,67 @@ export default function GoalsPage({ embedded = false, registerCreate }) {
             })}
           </div>
         </GoalField>
+
+        {/* Source de suivi — visible uniquement pour Trading */}
+        {form.category === "trading" && (
+          <GoalField label="Source de suivi"
+            hint={form.autoType === "manual" ? "Manuel : c'est toi qui fais avancer le compteur." : "Calculée automatiquement à partir de tes trades."}>
+            <FancyDropdown
+              variant="field"
+              value={form.autoType}
+              options={AUTO_TYPES}
+              onChange={(v) => setForm({ ...form, autoType: v })}
+              renderValue={(a) => (
+                <span style={{ fontSize: 13, fontWeight: 500, color: T.text }}>{a?.label}</span>
+              )}
+              renderOption={(a, active) => (
+                <>
+                  <span style={{ flex: 1 }}>{a.label}</span>
+                  {active && <Check size={12} strokeWidth={2.5} color={T.green} />}
+                </>
+              )}
+            />
+          </GoalField>
+        )}
+
+        {/* Compte ciblé — pour les sources de perf (PnL / WR / Nb trades / DD) */}
+        {form.category === "trading" && ["pnl","pnl_day","pnl_week","pnl_month","pnl_year","winrate","trades","max_dd"].includes(form.autoType) && (
+          <GoalField label="Compte ciblé">
+            <FancyDropdown
+              variant="field"
+              value={form.accountIdFilter || "all"}
+              options={(() => {
+                // Groupes par type : n'affiche « Tous les comptes <type> » que
+                // pour les types réellement présents parmi les comptes.
+                const TYPE_LABELS = { live: "Live", funded: "Funded" };
+                const presentTypes = ["live", "funded"].filter(ty =>
+                  (accounts || []).some(a => (a.account_type || "live") === ty)
+                );
+                return [
+                  { id: "all", label: "Tous mes comptes" },
+                  ...presentTypes.map(ty => ({
+                    id: `type:${ty}`,
+                    label: `Tous les comptes ${TYPE_LABELS[ty]}`,
+                  })),
+                  ...((accounts || []).map(a => ({
+                    id: String(a.id),
+                    label: `${a.name || "Compte"}${a.account_type ? ` · ${a.account_type}` : ""}`,
+                  }))),
+                ];
+              })()}
+              onChange={(v) => setForm({ ...form, accountIdFilter: v })}
+              renderValue={(o) => (
+                <span style={{ fontSize: 13, fontWeight: 500, color: T.text }}>{o?.label}</span>
+              )}
+              renderOption={(o, active) => (
+                <>
+                  <span style={{ flex: 1 }}>{o.label}</span>
+                  {active && <Check size={12} strokeWidth={2.5} color={T.green} />}
+                </>
+              )}
+            />
+          </GoalField>
+        )}
 
         {/* Sous-objectifs — visibles uniquement après création */}
         {editingId && (() => {
