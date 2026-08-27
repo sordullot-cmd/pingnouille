@@ -86,6 +86,7 @@ import { T as BaseT } from "@/lib/ui/tokens";
 import { deepen, dotRing, vignette as vignetteStyle } from "@/lib/ui/color";
 import { PALETTE, GREY } from "@/lib/ui/palette";
 import { Field as DAField, Modal as DAModal, FIELD as DA_FIELD, FIELD_AREA as DA_FIELD_AREA } from "@/components/ui/form";
+import { BTN } from "@/lib/ui/buttons";
 // `bg` local (#F5F5F5) = fond subtil : mappé sur la var de survol pour suivre le
 // thème sombre (BaseT.bg vaut #FFFFFF, ce qui ferait perdre le gris léger).
 const T = { ...BaseT, bg: "var(--color-hover-bg, #F5F5F5)" };
@@ -1314,7 +1315,7 @@ function EmptyGoalSlot({ rank, onCreate }) {
       <div style={{ display: "flex", flexWrap: "wrap", gap: 5, justifyContent: "center" }}>
         {YEAR_GOAL_TEMPLATES.slice(0, 4).map(tpl => (
           <button key={tpl.label} type="button" onClick={() => onCreate(tpl)}
-            style={{ display: "inline-flex", alignItems: "center", gap: 5, fontSize: 13, padding: "8px 16px", minHeight: 34, borderRadius: 999, background: T.white, border: `1px solid ${T.border}`, color: T.textSub, cursor: "pointer", fontFamily: "inherit" }}>
+            style={{ ...BTN.md, display: "inline-flex", alignItems: "center", background: T.white, border: `1px solid ${T.border}`, color: T.textSub, cursor: "pointer", fontFamily: "inherit" }}>
             <CatIcon name={tpl.icon} size={11} strokeWidth={1.9} color={tpl.color} />
             {tpl.label}
           </button>
@@ -1718,7 +1719,7 @@ function StepsBlock({ cat, steps, today, goalsByStep = {}, stepPcts = {}, allObj
            point de passage ne se pilote pas. */
         <button type="button" onClick={() => { setDraft(""); setAdding(true); }}
           onFocus={() => setBlockHov(true)} onBlur={() => setBlockHov(false)}
-          style={{ width: "100%", display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 7, padding: "8px 16px", minHeight: 34, borderRadius: 999, border: `1px dashed color-mix(in srgb, ${cat.color} 40%, transparent)`, background: `color-mix(in srgb, ${cat.color} 5%, transparent)`, color: cat.color, fontSize: 13, fontWeight: 500, cursor: "pointer", fontFamily: "inherit", opacity: revealed ? 1 : 0, transition: "opacity .15s ease" }}
+          style={{ width: "100%", display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 7, ...BTN.md, border: `1px dashed color-mix(in srgb, ${cat.color} 40%, transparent)`, background: `color-mix(in srgb, ${cat.color} 5%, transparent)`, color: cat.color, fontSize: 13, fontWeight: 500, cursor: "pointer", fontFamily: "inherit", opacity: revealed ? 1 : 0, transition: "opacity .15s ease" }}
           onMouseEnter={e => { e.currentTarget.style.background = `color-mix(in srgb, ${cat.color} 10%, transparent)`; }}
           onMouseLeave={e => { e.currentTarget.style.background = `color-mix(in srgb, ${cat.color} 5%, transparent)`; }}>
           <Milestone size={14} strokeWidth={2} /> Par où passer ?
@@ -1804,7 +1805,7 @@ function ObjectiveMultiSelect({ objectives, catId, stepId = null, color, onToggl
       ) : (
         <button type="button" onClick={() => setOpen(o => !o)}
           onFocus={() => setFocused(true)} onBlur={() => setFocused(false)}
-          style={{ width: "100%", display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 7, padding: "8px 16px", minHeight: 34, borderRadius: 999, border: filled ? `1px dashed color-mix(in srgb, ${color} 40%, transparent)` : "1px solid transparent", background: filled ? `color-mix(in srgb, ${color} 5%, transparent)` : "transparent", color, fontSize: 13, fontWeight: 500, cursor: "pointer", fontFamily: "inherit", opacity: show ? 1 : 0, transition: "opacity .15s ease, background .12s ease" }}
+          style={{ width: "100%", display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 7, ...BTN.md, border: filled ? `1px dashed color-mix(in srgb, ${color} 40%, transparent)` : "1px solid transparent", background: filled ? `color-mix(in srgb, ${color} 5%, transparent)` : "transparent", color, fontSize: 13, fontWeight: 500, cursor: "pointer", fontFamily: "inherit", opacity: show ? 1 : 0, transition: "opacity .15s ease, background .12s ease" }}
           onMouseEnter={e => { e.currentTarget.style.background = `color-mix(in srgb, ${color} ${filled ? 10 : 8}%, transparent)`; }}
           onMouseLeave={e => { e.currentTarget.style.background = filled ? `color-mix(in srgb, ${color} 5%, transparent)` : "transparent"; }}>
           <Plus size={14} strokeWidth={2} style={{ flexShrink: 0, transform: open ? "rotate(45deg)" : "none", transition: "transform .15s ease" }} />
@@ -1973,7 +1974,7 @@ function CategoryModal({ initial, onSave, onClose, onGoToObjectives }) {
 
       <Field label="Objectifs (ils mesurent l'avancement)">
         <button onClick={onGoToObjectives}
-          style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "8px 16px", minHeight: 34, borderRadius: 999, border: `1px solid ${T.border}`, background: T.white, color: T.text, fontSize: 13, fontWeight: 500, cursor: "pointer", fontFamily: "inherit" }}>
+          style={{ display: "inline-flex", alignItems: "center", gap: 6, ...BTN.md, border: `1px solid ${T.border}`, background: T.white, color: T.text, fontSize: 13, fontWeight: 500, cursor: "pointer", fontFamily: "inherit" }}>
           <Target size={14} strokeWidth={1.9} /> Gérer les objectifs
         </button>
       </Field>
@@ -1983,7 +1984,7 @@ function CategoryModal({ initial, onSave, onClose, onGoToObjectives }) {
         <span style={{ display: "inline-flex", alignItems: "center", gap: 5, fontSize: 11, color: T.textMut }}>
           <Check size={12} strokeWidth={2.5} color={T.green} /> Enregistré automatiquement
         </span>
-        <button onClick={onClose} style={{ minHeight: 34, padding: "8px 16px", borderRadius: 999, border: "none", background: T.brand, color: T.onSolid, fontSize: 13, fontWeight: 500, cursor: "pointer", fontFamily: "inherit" }}>Fermer</button>
+        <button onClick={onClose} style={{ ...BTN.md, border: "none", background: T.brand, color: T.onSolid, fontSize: 13, fontWeight: 500, cursor: "pointer", fontFamily: "inherit" }}>Fermer</button>
       </div>
     </Overlay>
   );
@@ -2212,23 +2213,23 @@ function AutoTextarea({ value, onChange, placeholder, minRows = 3, style }) {
    Comptes et Calendrier) : 12 px, pas de bordure, l'action principale en aplat
    d'encre, les secondaires en blanc posé sur l'ombre de pilule. */
 function btnPrimary() {
-  return { display: "inline-flex", alignItems: "center", gap: 6, padding: "8px 16px", minHeight: 34, borderRadius: 999, border: "none", background: T.brand, color: T.onSolid, fontSize: 13, fontWeight: 500, cursor: "pointer", fontFamily: "inherit" };
+  return { display: "inline-flex", alignItems: "center", gap: 6, ...BTN.md, border: "none", background: T.brand, color: T.onSolid, fontSize: 13, fontWeight: 500, cursor: "pointer", fontFamily: "inherit" };
 }
 // Bouton d'action principal d'une modale : même aplat d'accent, cible plus
 // généreuse. (S'appelait `btnDark` du temps où l'action principale était noire.)
 function btnPrimaryLg() {
-  return { display: "inline-flex", alignItems: "center", gap: 6, padding: "8px 16px", minHeight: 34, borderRadius: 999, border: "none", background: T.brand, color: T.onSolid, fontSize: 13, fontWeight: 500, cursor: "pointer", fontFamily: "inherit" };
+  return { display: "inline-flex", alignItems: "center", gap: 6, ...BTN.md, border: "none", background: T.brand, color: T.onSolid, fontSize: 13, fontWeight: 500, cursor: "pointer", fontFamily: "inherit" };
 }
 /* Action forte NEUTRE : mêmes métriques que btnPrimary, mais à l'encre au lieu
    de l'accent. C'est ce qui permet de poser deux actions pleines côte à côte
    sans qu'elles se disputent le regard — l'accent reste réservé à celle qui
    structure la page. */
 function btnDark() {
-  return { display: "inline-flex", alignItems: "center", gap: 6, padding: "8px 16px", minHeight: 34, borderRadius: 999, border: "none", background: T.text, color: T.textInverted, fontSize: 13, fontWeight: 500, cursor: "pointer", fontFamily: "inherit" };
+  return { display: "inline-flex", alignItems: "center", gap: 6, ...BTN.md, border: "none", background: T.text, color: T.textInverted, fontSize: 13, fontWeight: 500, cursor: "pointer", fontFamily: "inherit" };
 }
 // Bouton secondaire d'une modale.
 function btnGhost() {
-  return { padding: "8px 16px", minHeight: 34, borderRadius: 999, border: "none", background: T.white, boxShadow: T.areteBouton, color: T.text, fontSize: 13, fontWeight: 500, cursor: "pointer", fontFamily: "inherit" };
+  return { ...BTN.md, border: "none", background: T.white, boxShadow: T.areteBouton, color: T.text, fontSize: 13, fontWeight: 500, cursor: "pointer", fontFamily: "inherit" };
 }
 function iconBtn() {
   return { width: 32, height: 32, borderRadius: 8, border: "none", background: "transparent", color: T.textMut, cursor: "pointer", display: "inline-flex", alignItems: "center", justifyContent: "center", flexShrink: 0 };

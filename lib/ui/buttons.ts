@@ -74,8 +74,18 @@ export interface ButtonMetrics {
 }
 
 /* Le rayon est 12 partout : un rayon qui change avec la taille ferait trois
-   formes au lieu d'une. */
-const FORME = { borderRadius: 12, fontWeight: 600 } as const;
+   formes au lieu d'une.
+
+   La graisse reste 500, et c'est un écart assumé avec la DA, qui déduit 600.
+   La référence de ce site est la rangée « Jour / Mois / Année » : tous ses
+   boutons ont la même graisse, y compris celui qui est pris — l'état actif se
+   dit par le fond, pas par le gras. C'est aussi la valeur que globals.css
+   impose par DÉFAUT à tout `<button>` : passer la table à 600 laisserait à 500
+   les deux cents boutons qui déclarent la leur, et l'app afficherait deux
+   graisses de bouton côte à côte, ce que l'audit du 20/08 avait précisément
+   supprimé. La présence, la DA la donne autrement : le bouton PRIMAIRE est en
+   capitales à 700 (cf. `SKINS` dans components/ui/form.jsx). */
+const FORME = { borderRadius: 12, fontWeight: 500 } as const;
 
 /** Le corps, commun à tous les boutons. Un bouton du site fait ça, point. */
 export const BTN_HEIGHT = 44;

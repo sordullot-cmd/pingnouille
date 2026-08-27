@@ -37,6 +37,7 @@ import ReviewSession from "@/components/revisions/ReviewSession";
 import NoteEditor from "@/components/revisions/NoteEditor";
 import Workshop from "@/components/revisions/Workshop";
 import DeckBrowser from "@/components/revisions/DeckBrowser";
+import { BTN } from "@/lib/ui/buttons";
 
 const STORAGE_KEY = "tr4de_srs";
 
@@ -323,7 +324,7 @@ export default function RevisionsPage() {
                   type="button"
                   onClick={() => startSession(null)}
                   style={{
-                    padding: "8px 16px", minHeight: 34, borderRadius: 999, border: "none",
+                    ...BTN.md, border: "none",
                     /* À l'encre, comme l'action principale des autres pages :
                        l'accent vert servait ici à une action ordinaire, alors
                        qu'ailleurs il est réservé aux repères de progression. */

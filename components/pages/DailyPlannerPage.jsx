@@ -47,6 +47,7 @@ import { vignette } from "@/lib/ui/color";
 import { CARD, StepperPill, FIELD_BG } from "@/components/ui/da";
 import Popover from "@/components/ui/Popover";
 import { FIELD_BG as DA_FIELD_BG, WRITING_BG as DA_WRITING_BG, HAIRLINE as DA_HAIRLINE } from "@/lib/ui/tokens";
+import { BTN } from "@/lib/ui/buttons";
 
 /* Surface secondaire (pastilles d'icône, champs, aplats internes). L'ancien
    `T.bg` local pointait sur le gris de survol pour ne pas être blanc ; la page
@@ -80,19 +81,19 @@ const topIconBtn = {
 };
 const pillBtn = {
   display: "inline-flex", alignItems: "center", gap: 6,
-  padding: "8px 16px", minHeight: 34, borderRadius: 999,
+  ...BTN.md,
   border: "none", background: DA_FIELD_BG, color: T.text,
   fontSize: 13, fontWeight: 500, fontFamily: "inherit", cursor: "pointer",
 };
 const ghostBtn = () => ({
   display: "inline-flex", alignItems: "center",
-  padding: "8px 16px", minHeight: 34, borderRadius: 999,
+  ...BTN.md,
   border: "none", background: DA_FIELD_BG, color: T.text,
   fontSize: 12, fontWeight: 500, cursor: "pointer", fontFamily: "inherit",
 });
 const primaryBtn = (small = false) => ({
   display: "inline-flex", alignItems: "center",
-  padding: "8px 16px", minHeight: 34, borderRadius: 999,
+  ...BTN.md,
   border: "none", background: T.text, color: T.textInverted,
   fontSize: small ? 12 : 14, fontWeight: 500, cursor: "pointer", fontFamily: "inherit",
 });
@@ -515,7 +516,7 @@ export default function DailyPlannerPage() {
             page qui porte à la fois des habitudes et des tâches du jour, c'était
             une devinette. */}
         <button onClick={openCreateHabit}
-          style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "8px 16px", minHeight: 34, borderRadius: 999, border: "none", background: T.text, color: T.textInverted, fontSize: 13, fontWeight: 500, cursor: "pointer", fontFamily: "inherit", flexShrink: 0, whiteSpace: "nowrap" }}>
+          style={{ display: "inline-flex", alignItems: "center", gap: 6, ...BTN.md, border: "none", background: T.text, color: T.textInverted, fontSize: 13, fontWeight: 500, cursor: "pointer", fontFamily: "inherit", flexShrink: 0, whiteSpace: "nowrap" }}>
           <Plus size={14} strokeWidth={1.75} /> Nouvelle habitude
         </button>
         <div id="tr4de-page-header-slot" />
@@ -713,7 +714,7 @@ export default function DailyPlannerPage() {
                         const toggle = () => setHabitDraft({ ...habitDraft, attributes: active ? sel.filter(x => x !== c.id) : [...sel, c.id] });
                         return (
                           <button key={c.id} type="button" onClick={toggle}
-                            style={{ display: "inline-flex", alignItems: "center", gap: 5, padding: "8px 16px", minHeight: 34, borderRadius: 999, border: "none", boxShadow: active ? `inset 0 0 0 1px ${c.color}` : "none", background: active ? `color-mix(in srgb, ${c.color} 10%, transparent)` : DA_FIELD_BG, color: active ? c.color : T.text, fontSize: 13, fontWeight: 500, cursor: "pointer", fontFamily: "inherit" }}>
+                            style={{ display: "inline-flex", alignItems: "center", gap: 5, ...BTN.md, border: "none", boxShadow: active ? `inset 0 0 0 1px ${c.color}` : "none", background: active ? `color-mix(in srgb, ${c.color} 10%, transparent)` : DA_FIELD_BG, color: active ? c.color : T.text, fontSize: 13, fontWeight: 500, cursor: "pointer", fontFamily: "inherit" }}>
                             {active
                               ? <Check size={13} strokeWidth={2.5} color={c.color} />
                               : <CatIcon name={c.icon} size={13} strokeWidth={1.9} color={T.textMut} />}

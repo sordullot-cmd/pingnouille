@@ -37,6 +37,7 @@ import {
 import { noteTitle } from "@/lib/notes/markdown";
 import { useFirstLoad } from "@/lib/hooks/useFirstLoad";
 import { SkeletonScreen, SkeletonToolbar, Skeleton } from "@/components/ui/Skeleton";
+import { BTN } from "@/lib/ui/buttons";
 
 // KaTeX (~280 ko) n'est téléchargé qu'à la première ouverture de l'aperçu.
 const NotePreview = dynamic(() => import("@/components/notes/NotePreview"), {
@@ -866,7 +867,7 @@ export default function NotesPage() {
           onClick={createNote}
           style={{
             display: "inline-flex", alignItems: "center", gap: 6,
-            padding: "8px 16px", minHeight: 34, borderRadius: 999, border: "none",
+            ...BTN.md, border: "none",
             background: T.text, color: T.textInverted,
             fontSize: 13, fontWeight: 500, cursor: "pointer", fontFamily: "inherit",
           }}
@@ -898,7 +899,7 @@ export default function NotesPage() {
               <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginTop: 10 }}>
                 {activeTag && (
                   <button onClick={() => setActiveTag(null)}
-                    style={{ display: "inline-flex", alignItems: "center", gap: 4, padding: "8px 16px", minHeight: 34, borderRadius: 999, border: "none", background: FIELD_BG, fontSize: 13, cursor: "pointer", color: T.textSub, fontFamily: "inherit" }}>
+                    style={{ display: "inline-flex", alignItems: "center", gap: 4, ...BTN.md, border: "none", background: FIELD_BG, fontSize: 13, cursor: "pointer", color: T.textSub, fontFamily: "inherit" }}>
                     <X size={10} strokeWidth={2} /> Tout
                   </button>
                 )}
@@ -906,7 +907,7 @@ export default function NotesPage() {
                   <button key={tag} onClick={() => setActiveTag(tag === activeTag ? null : tag)}
                     aria-pressed={activeTag === tag}
                     style={{
-                      padding: "8px 16px", minHeight: 34, borderRadius: 999, border: "none",
+                      ...BTN.md, border: "none",
                       background: activeTag === tag ? T.text : FIELD_BG,
                       color: activeTag === tag ? T.textInverted : T.textSub,
                       fontSize: 13, fontWeight: 500, cursor: "pointer", fontFamily: "inherit",
@@ -976,7 +977,7 @@ export default function NotesPage() {
                     aria-pressed={preview}
                     title={preview ? "Modifier (Ctrl+E)" : "Aperçu formaté : formules $…$, titres, listes (Ctrl+E)"}
                     style={{
-                      padding: "8px 16px", minHeight: 34, borderRadius: 999,
+                      ...BTN.md,
                       background: preview ? T.text : T.white,
                       border: preview ? "none" : `1px solid ${T.border}`,
                       color: preview ? T.textInverted : T.text,

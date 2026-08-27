@@ -42,6 +42,7 @@ import {
 } from "@/lib/eloquenceData";
 import { T } from "@/lib/ui/tokens";
 import { CARD, MiniKpi, PeriodPills, FIELD_BG, HAIRLINE, FIELD as DA_FIELD, FIELD_AREA as DA_FIELD_AREA } from "@/components/ui/da";
+import { BTN } from "@/lib/ui/buttons";
 
 /* ─────────────── Helpers génériques ─────────────── */
 // Couleur d'un score 0–100.
@@ -82,14 +83,14 @@ const card = { ...CARD, padding: 20, boxSizing: "border-box" };
 const SURFACE = FIELD_BG;
 const pill = (active) => ({
   display: "inline-flex", alignItems: "center", gap: 6,
-  padding: "8px 16px", minHeight: 34, borderRadius: 999, cursor: "pointer", border: "none",
+  ...BTN.md, cursor: "pointer", border: "none",
   background: active ? T.text : FIELD_BG, color: active ? T.textInverted : T.text,
   fontSize: 13, fontWeight: 500, fontFamily: "inherit",
   transition: "background 120ms ease, color 120ms ease",
 });
 const ghost = (disabled) => ({
   display: "inline-flex", alignItems: "center", gap: 6,
-  padding: "8px 16px", minHeight: 34, borderRadius: 999,
+  ...BTN.md,
   border: `1px solid ${T.border}`, background: T.white, color: T.text,
   fontSize: 13, fontWeight: 500, fontFamily: "inherit",
   cursor: disabled ? "not-allowed" : "pointer", opacity: disabled ? 0.5 : 1,
@@ -97,7 +98,7 @@ const ghost = (disabled) => ({
 });
 const primary = (disabled) => ({
   display: "inline-flex", alignItems: "center", gap: 6,
-  padding: "8px 16px", minHeight: 34, borderRadius: 999,
+  ...BTN.md,
   border: "none", background: T.text, color: T.textInverted,
   fontSize: 12, fontWeight: 500, fontFamily: "inherit",
   cursor: disabled ? "not-allowed" : "pointer", opacity: disabled ? 0.55 : 1,

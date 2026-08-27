@@ -29,6 +29,7 @@ import { T as BaseT } from "@/lib/ui/tokens";
 import { ACCENT_PRESETS, applyAccent, isHexColor, readAccent } from "@/lib/ui/accent";
 import { Field as DAField, FIELD as DA_FIELD } from "@/components/ui/form";
 import { FIELD_BG as DA_FIELD_BG } from "@/lib/ui/tokens";
+import { BTN } from "@/lib/ui/buttons";
 
 // Clés locales absentes de BaseT mappées sur des tokens dark-aware.
 const T = { ...BaseT, panel: BaseT.accentBg, borderHover: BaseT.border2 };
@@ -153,8 +154,7 @@ function PrimaryButton({ children, onClick, disabled, icon: Icon }) {
       onClick={onClick}
       disabled={disabled}
       style={{
-        minHeight: 34, padding: "8px 16px",
-        borderRadius: 999,
+        ...BTN.md,
         border: `1px solid ${T.text}`,
         background: T.text,
         color: T.white,
@@ -992,7 +992,7 @@ function inputStyle() {
 /* ── Alerts section ────────────────────────────────────────────────── */
 function primaryBtn() {
   return {
-    padding: "8px 16px", minHeight: 34, borderRadius: 999, border: `1px solid ${T.text}`,
+    ...BTN.md, border: `1px solid ${T.text}`,
     background: T.text, color: T.white,
     fontSize: 13, fontWeight: 500, cursor: "pointer", fontFamily: "inherit",
   };
@@ -1000,7 +1000,7 @@ function primaryBtn() {
 // Secondaire = fond T.white, bordure T.border (comme SecondaryButton).
 function secondaryBtn(disabled) {
   return {
-    padding: "8px 16px", minHeight: 34, borderRadius: 999, border: `1px solid ${T.border}`,
+    ...BTN.md, border: `1px solid ${T.border}`,
     background: T.white, color: T.text,
     fontSize: 12, fontWeight: 500, cursor: disabled ? "default" : "pointer",
     opacity: disabled ? 0.7 : 1, fontFamily: "inherit",

@@ -25,6 +25,7 @@ import { Field, FieldGrid, Input, Modal, PillButton, Select } from "@/components
 import { noteTitle, ordsForNote } from "@/lib/srs/model";
 import { queueKindOf } from "@/lib/srs/queue";
 import { formatInterval } from "@/lib/srs/fsrs";
+import { BTN } from "@/lib/ui/buttons";
 
 const COLORS = ["blue", "green", "orange", "purple", "red", "yellow", "pink", "brown"];
 
@@ -125,7 +126,7 @@ function DeckModal({ deck, onSave, onDelete, onClose }) {
                 onClick={() => set({ color: c })}
                 aria-label={c}
                 style={{
-                  width: 34, height: 34, borderRadius: 999, cursor: "pointer",
+                  width: 34, ...BTN.md, cursor: "pointer",
                   background: PALETTE[c], border: "none", padding: 0,
                   boxShadow: form.color === c ? `0 0 0 2px ${T.white}, 0 0 0 4px ${PALETTE_DARK[c]}` : "none",
                   transition: "var(--tr-ui)",

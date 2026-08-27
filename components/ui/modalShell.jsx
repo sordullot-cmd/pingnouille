@@ -14,6 +14,7 @@ import { X } from "lucide-react";
 import { T } from "@/lib/ui/tokens";
 import { t } from "@/lib/i18n";
 import { backdropDismiss } from "@/lib/hooks/useBackdropDismiss";
+import { BTN } from "@/lib/ui/buttons";
 
 export function ModalShell({ title, subtitle, onClose, children, footer, width = 480 }) {
   if (typeof document === "undefined") return null;
@@ -124,7 +125,7 @@ export function PillGroup({ options, value, onChange, ariaLabel }) {
             aria-checked={active}
             onClick={() => onChange(opt.id)}
             style={{
-              padding: "8px 16px", minHeight: 34, borderRadius: 999,
+              ...BTN.md,
               border: `1px solid ${active ? T.text : T.border}`,
               background: active ? T.text : T.white,
               color: active ? T.bg : T.text,
@@ -148,7 +149,7 @@ export function PrimaryBtn({ children, onClick, disabled, tone = "text" }) {
       onClick={onClick}
       disabled={disabled}
       style={{
-        padding: "8px 16px", minHeight: 34, borderRadius: 999,
+        ...BTN.md,
         border: `1px solid ${bg}`, background: bg, color: "#fff",
         fontSize: 14, fontWeight: 500, fontFamily: "inherit",
         cursor: disabled ? "not-allowed" : "pointer", opacity: disabled ? 0.5 : 1,
@@ -166,7 +167,7 @@ export function GhostBtn({ children, onClick, tone }) {
       type="button"
       onClick={onClick}
       style={{
-        padding: "8px 16px", minHeight: 34, borderRadius: 999,
+        ...BTN.md,
         border: `1px solid ${tone === "danger" ? T.redBd : T.border}`,
         background: T.white, color,
         fontSize: 14, fontWeight: 500, fontFamily: "inherit", cursor: "pointer",

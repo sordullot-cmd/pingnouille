@@ -14,6 +14,7 @@ import { FolderSync, RefreshCw, Check, TriangleAlert, Unlink, FolderOpen, X } fr
 import { T } from "@/lib/ui/tokens";
 import { HAIRLINE, FIELD_BG } from "@/components/ui/da";
 import Popover from "@/components/ui/Popover";
+import { BTN } from "@/lib/ui/buttons";
 
 function relativeTime(ms) {
   if (!ms) return null;
@@ -63,7 +64,7 @@ function Switch({ checked, onChange, label }) {
 
 const ACTION = {
   display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 6,
-  padding: "8px 16px", minHeight: 34, borderRadius: 999,
+  ...BTN.md,
   fontSize: 12, fontWeight: 500, cursor: "pointer", fontFamily: "inherit",
 };
 
@@ -130,7 +131,7 @@ export default function ObsidianVaultPanel({ vault }) {
             type="button"
             onClick={() => setOpen(false)}
             aria-label="Fermer"
-            style={{ width: 34, height: 34, borderRadius: 999, border: "none", background: "transparent", color: T.textMut, cursor: "pointer", display: "inline-flex", alignItems: "center", justifyContent: "center" }}
+            style={{ width: 34, ...BTN.md, border: "none", background: "transparent", color: T.textMut, cursor: "pointer", display: "inline-flex", alignItems: "center", justifyContent: "center" }}
           >
             <X size={12} strokeWidth={2} />
           </button>

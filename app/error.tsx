@@ -2,6 +2,7 @@
 
 import { useEffect } from "react";
 import Link from "next/link";
+import { BTN } from "@/lib/ui/buttons";
 
 export default function Error({
   error,
@@ -86,15 +87,13 @@ export default function Error({
           type="button"
           onClick={() => window.location.reload()}
           style={{
+            ...BTN.lg,
             background: "var(--color-card-bg, #FFFFFF)",
             color: "var(--color-text, #0D0D0D)",
-            border: "1px solid var(--color-border, #E5E5E5)",
-            padding: "8px 16px", fontSize: 14,
-            minHeight: 34,
-            borderRadius: 999,
+            border: "2px solid var(--color-border, #E5E5E5)",
+            boxShadow: "0 4px 0 var(--color-border-strong, #D4D4D4)",
             cursor: "pointer",
             fontFamily: "inherit",
-            fontWeight: 500,
           }}
         >
           Recharger la page

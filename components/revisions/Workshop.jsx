@@ -30,6 +30,7 @@ import { CARD, SectionTitle } from "@/components/ui/da";
 import { Field, FieldGrid, Input, PillButton, Select, Textarea } from "@/components/ui/form";
 import { stripCloze } from "@/lib/srs/cloze";
 import { fromAnkiText } from "@/lib/srs/ankiText";
+import { BTN } from "@/lib/ui/buttons";
 
 const SOURCES = [
   { id: "paste", label: "Coller un texte", icon: ClipboardPaste },
@@ -318,7 +319,7 @@ export default function Workshop({ decks, notes, books, onCommit, onCreateDeck }
                 onClick={() => { setSource(s.id); setError(null); }}
                 style={{
                   display: "inline-flex", alignItems: "center", gap: 6,
-                  padding: "8px 16px", minHeight: 34, borderRadius: 999, border: "none",
+                  ...BTN.md, border: "none",
                   background: active ? T.text : FIELD_BG,
                   color: active ? T.textInverted : T.textSub,
                   fontSize: 13, fontWeight: 500, fontFamily: "inherit",
@@ -369,8 +370,7 @@ export default function Workshop({ decks, notes, books, onCommit, onCreateDeck }
               <input type="file" accept=".txt,.tsv,.csv,text/plain" onChange={onFile} style={{ display: "none" }} />
               <span
                 style={{
-                  display: "inline-flex", alignItems: "center", gap: 6, minHeight: 34, padding: "8px 16px",
-                  borderRadius: 999, background: FIELD_BG, color: T.text,
+                  display: "inline-flex", alignItems: "center", gap: 6, ...BTN.md, background: FIELD_BG, color: T.text,
                   fontSize: 13, fontWeight: 500, cursor: "pointer", transition: "var(--tr-ui)",
                 }}
               >

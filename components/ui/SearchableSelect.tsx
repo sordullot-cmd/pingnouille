@@ -4,7 +4,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { ChevronUp, ChevronDown, Search, Check } from "lucide-react";
 import Popover from "@/components/ui/Popover";
 import { FIELD_BG } from "@/lib/ui/tokens";
-import { FIELD_FOCUS_RING } from "@/components/ui/form";
+import { FIELD_FOCUS_RING, FIELD, FIELD_SM } from "@/components/ui/form";
 
 export interface SearchableOption {
   id: string;
@@ -114,18 +114,16 @@ export default function SearchableSelect({
         onClick={toggleOpen}
         aria-haspopup="listbox"
         aria-expanded={open}
-        style={{minHeight: 34,
-          width: "100%",
+        style={{
+          ...(small ? FIELD_SM : FIELD),
           display: "flex",
           alignItems: "center",
           gap: 8,
-          padding: small ? "6px 12px" : "9px 14px",
-          border: "none",
-          borderRadius: 999,
-          background: FIELD_BG,
+          /* Ouvert, le champ prend la bordure d'action comme s'il avait le
+             focus : c'est le même état — « ça se passe ici ». */
+          borderColor: open ? "var(--color-action)" : "var(--color-border)",
           boxShadow: open ? FIELD_FOCUS_RING : "none",
           color: selected ? "var(--color-text)" : "var(--color-text-muted)",
-          fontSize: small ? 12 : 13,
           fontWeight: 500,
           cursor: "pointer",
           fontFamily: "inherit",

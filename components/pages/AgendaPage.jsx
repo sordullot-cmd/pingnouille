@@ -26,6 +26,7 @@ import { GCAL_COLORS, DEFAULT_EVENT_COLOR, nearestGcalColorId } from "@/lib/gcal
 import { FIELD as DA_FIELD } from "@/components/ui/form";
 import { HAIRLINE as DA_HAIRLINE } from "@/lib/ui/tokens";
 import { FIELD_BG as DA_FIELD_BG } from "@/lib/ui/tokens";
+import { BTN } from "@/lib/ui/buttons";
 
 /* ─────────────── Helpers date ─────────────── */
 const WEEKDAYS = ["Lun", "Mar", "Mer", "Jeu", "Ven", "Sam", "Dim"];
@@ -1221,9 +1222,9 @@ export default function AgendaPage() {
             onClick={() => setDatePickerOpen((o) => !o)}
             title="Choisir une date"
             style={{
-              fontSize: 13, fontWeight: 500, color: T.text,
+              ...BTN.md,
+              color: T.text,
               background: T.white, border: "none", cursor: "pointer",
-              padding: "8px 16px", minHeight: 34, borderRadius: 999,
               boxShadow: T.areteBouton, fontFamily: "var(--font-sans)", textTransform: "capitalize",
             }}
           >
@@ -1318,7 +1319,7 @@ export default function AgendaPage() {
                       }}
                       style={{
                         display: "flex", alignItems: "center", gap: 5, width: "100%",
-                        padding: "8px 16px", minHeight: 34, borderRadius: 999, cursor: "pointer", fontFamily: "inherit",
+                        ...BTN.md, cursor: "pointer", fontFamily: "inherit",
                         border: `1px solid ${T.border}`, background: T.white, color: T.text, fontSize: 13, fontWeight: 500,
                       }}>
                       <Target size={12} strokeWidth={2.2} color={T.blue} style={{ flexShrink: 0 }} />
@@ -1700,7 +1701,7 @@ export default function AgendaPage() {
                     <button key={k} type="button" onClick={() => setModalTab(k)}
                       style={{
                         display: "inline-flex", alignItems: "center", gap: 6,
-                        padding: "8px 16px", minHeight: 34, borderRadius: 999, border: "none", fontFamily: "inherit",
+                        ...BTN.md, border: "none", fontFamily: "inherit",
                         fontSize: 13, fontWeight: 500,
                         background: active ? `color-mix(in srgb, ${T.blue} 10%, transparent)` : "transparent",
                         color: active ? T.blue : T.textMut, cursor: "pointer",
@@ -1993,7 +1994,7 @@ export default function AgendaPage() {
                           });
                           return (
                             <button key={c.id} type="button" onClick={toggle}
-                              style={{ display: "inline-flex", alignItems: "center", gap: 5, padding: "8px 16px", minHeight: 34, borderRadius: 999, border: `1px solid ${active ? c.color : T.border}`, background: active ? `${c.color}14` : T.white, color: active ? c.color : T.text, fontSize: 13, fontWeight: 500, cursor: "pointer", fontFamily: "inherit" }}>
+                              style={{ display: "inline-flex", alignItems: "center", gap: 5, ...BTN.md, border: `1px solid ${active ? c.color : T.border}`, background: active ? `${c.color}14` : T.white, color: active ? c.color : T.text, fontSize: 13, fontWeight: 500, cursor: "pointer", fontFamily: "inherit" }}>
                               {active
                                 ? <Check size={13} strokeWidth={2.5} color={c.color} />
                                 : <CatIcon name={c.icon} size={13} strokeWidth={1.9} color={T.textMut} />}
@@ -2184,7 +2185,7 @@ const topIconBtn = {
 };
 const pillBtn = {
   display: "inline-flex", alignItems: "center", gap: 8,
-  padding: "8px 16px", minHeight: 34, borderRadius: 999,
+  ...BTN.md,
   border: `1px solid ${T.border}`, background: T.white, color: T.text,
   fontSize: 13, fontWeight: 500, fontFamily: "inherit", cursor: "pointer",
 };
@@ -2202,13 +2203,13 @@ const iconBtn = () => ({
 });
 const ghostBtn = () => ({
   display: "inline-flex", alignItems: "center",
-  padding: "8px 16px", minHeight: 34, borderRadius: 999,
+  ...BTN.md,
   border: "none", background: FIELD_BG, color: T.text,
   fontSize: 12, fontWeight: 500, cursor: "pointer", fontFamily: "inherit",
 });
 const primaryBtn = (small = false) => ({
   display: "inline-flex", alignItems: "center",
-  padding: "8px 16px", minHeight: 34, borderRadius: 999,
+  ...BTN.md,
   border: "none", background: T.text, color: T.textInverted,
   fontSize: small ? 12 : 14, fontWeight: 500, cursor: "pointer", fontFamily: "inherit",
 });

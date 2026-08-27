@@ -15,6 +15,7 @@ import { PALETTE, GREY } from "@/lib/ui/palette";
 import { Field as DAField, FIELD as DA_FIELD, FIELD_FOCUS_RING as DA_FOCUS_RING, Modal as DAModal, PillButton as DAPillButton } from "@/components/ui/form";
 import { FIELD_BG as DA_FIELD_BG } from "@/lib/ui/tokens";
 import { WRITING_BG as DA_WRITING_BG } from "@/lib/ui/tokens";
+import { BTN } from "@/lib/ui/buttons";
 
 const T = { ...BaseT };
 
@@ -108,7 +109,7 @@ export default function ReadingListPage() {
     <div style={{ display: "flex", flexDirection: "column", gap: 16 }} className="anim-1">
       <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
         <button onClick={() => { setShowForm(true); setEditingId(null); setForm(emptyForm); }}
-          style={{ marginLeft: "auto", padding: "8px 16px", height: 34, minHeight: 34, borderRadius: 999, background: T.text, border: `1px solid ${T.text}`, color: "#fff", fontSize: 13, fontWeight: 500, cursor: "pointer", fontFamily: "inherit", display: "inline-flex", alignItems: "center", gap: 6 }}>
+          style={{ marginLeft: "auto", ...BTN.md, background: T.text, border: `1px solid ${T.text}`, color: "#fff", fontSize: 13, fontWeight: 500, cursor: "pointer", fontFamily: "inherit", display: "inline-flex", alignItems: "center", gap: 6 }}>
           <Plus size={14} strokeWidth={2} /> Ajouter un livre
         </button>
         <div id="tr4de-page-header-slot" />
@@ -133,7 +134,7 @@ export default function ReadingListPage() {
         </div>
       ) : (
         <button onClick={() => setShowIntro(true)}
-          style={{ alignSelf: "flex-start", padding: "8px 16px", minHeight: 34, borderRadius: 999, border: `1px dashed ${T.border}`, background: T.white, color: T.textSub, fontSize: 13, fontWeight: 500, cursor: "pointer", fontFamily: "inherit", display: "inline-flex", alignItems: "center", gap: 6 }}>
+          style={{ alignSelf: "flex-start", ...BTN.md, border: `1px dashed ${T.border}`, background: T.white, color: T.textSub, fontSize: 13, fontWeight: 500, cursor: "pointer", fontFamily: "inherit", display: "inline-flex", alignItems: "center", gap: 6 }}>
           <BookOpen size={12} strokeWidth={1.75} /> Afficher l’importance de la lecture
         </button>
       )}
@@ -201,7 +202,7 @@ export default function ReadingListPage() {
                     return (
                       <button key={p.id} type="button" onClick={() => setForm({ ...form, priority: p.id })}
                         style={{
-                          padding: "8px 16px", minHeight: 34, borderRadius: 999,
+                          ...BTN.md,
                           border: `1px solid ${active ? p.color : T.border}`,
                           background: active ? p.color + "14" : T.white,
                           color: active ? p.color : T.textSub,
@@ -234,7 +235,7 @@ export default function ReadingListPage() {
         {[{ id: "all", label: "Tous" }, ...STATUSES].map(f => (
           <button key={f.id} onClick={() => setFilter(f.id)}
             style={{
-              padding: "8px 16px", minHeight: 34, borderRadius: 999,
+              ...BTN.md,
               border: `1px solid ${filter === f.id ? T.text : T.border}`,
               background: filter === f.id ? T.text : T.white,
               color: filter === f.id ? T.white : T.text,

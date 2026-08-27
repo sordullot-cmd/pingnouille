@@ -759,7 +759,7 @@ export function StepperPill({ label, onPrev, onNext, onLabel, labelTitle, prevLa
   return (
     <div style={{
       display:"flex", alignItems:"center", gap:8,
-      height:34, padding: "8px 16px", minHeight: 34, borderRadius:999,
+      ...BTN.md,
       background:T.white, boxShadow:T.areteBouton,
     }}>
       <button

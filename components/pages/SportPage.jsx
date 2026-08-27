@@ -22,6 +22,7 @@ import { T as BaseT } from "@/lib/ui/tokens";
 import { dotRing } from "@/lib/ui/color";
 import { PALETTE } from "@/lib/ui/palette";
 import { FIELD_BG as DA_FIELD_BG } from "@/lib/ui/tokens";
+import { BTN } from "@/lib/ui/buttons";
 
 /* ---------------------------------------------------------------------------
    Page « Sport » — portée dans la direction artistique des pages récentes
@@ -657,13 +658,13 @@ export default function SportPage() {
           <div id="tr4de-page-header-slot" />
           {tab === "workout" && (
             <button onClick={openCreate}
-              style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "8px 16px", minHeight: 34, borderRadius: 999, background: T.text, border: "none", color: T.textInverted, fontSize: 13, fontWeight: 500, cursor: "pointer", fontFamily: "inherit" }}>
+              style={{ display: "inline-flex", alignItems: "center", gap: 6, ...BTN.md, background: T.text, border: "none", color: T.textInverted, fontSize: 13, fontWeight: 500, cursor: "pointer", fontFamily: "inherit" }}>
               <Plus size={14} strokeWidth={1.75} /> Nouvelle séance
             </button>
           )}
           {tab === "photos" && (
             <button type="button" onClick={pickPhotos} disabled={photoBusy}
-              style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "8px 16px", minHeight: 34, borderRadius: 999, background: T.text, border: "none", color: T.textInverted, fontSize: 13, fontWeight: 500, cursor: photoBusy ? "default" : "pointer", opacity: photoBusy ? 0.6 : 1, fontFamily: "inherit" }}>
+              style={{ display: "inline-flex", alignItems: "center", gap: 6, ...BTN.md, background: T.text, border: "none", color: T.textInverted, fontSize: 13, fontWeight: 500, cursor: photoBusy ? "default" : "pointer", opacity: photoBusy ? 0.6 : 1, fontFamily: "inherit" }}>
               <ImagePlus size={14} strokeWidth={1.75} /> {photoBusy ? "Ajout…" : "Ajouter des photos"}
             </button>
           )}
@@ -1028,7 +1029,7 @@ function PhotosTab({ photos, setPhotos, onAdd, busy }) {
               <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8, padding: "18px 18px 0" }}>
                 <div style={{ fontSize: 16, fontWeight: 500, color: T.text, textTransform: "capitalize", lineHeight: 1.2, minWidth: 0, overflow: "hidden", textOverflow: "ellipsis" }}>{fmtDate(viewer.date)}</div>
                 <button type="button" onClick={() => setViewerId(null)} aria-label="Fermer"
-                  style={{ flex: "0 0 auto", width: 34, height: 34, borderRadius: 999, border: "none", background: "transparent", color: T.textSub, cursor: "pointer", display: "inline-flex", alignItems: "center", justifyContent: "center", transition: "background var(--dur-fast) var(--ease-out)" }}
+                  style={{ flex: "0 0 auto", width: 34, ...BTN.md, border: "none", background: "transparent", color: T.textSub, cursor: "pointer", display: "inline-flex", alignItems: "center", justifyContent: "center", transition: "background var(--dur-fast) var(--ease-out)" }}
                   onMouseEnter={(e) => { e.currentTarget.style.background = FIELD_BG; }}
                   onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; }}>
                   <X size={16} strokeWidth={1.75} />
@@ -1060,7 +1061,7 @@ function PhotosTab({ photos, setPhotos, onAdd, busy }) {
 
               {/* Suppression */}
               <button type="button" onClick={() => del(viewer.id)}
-                style={{ margin: "auto 18px 18px", padding: "8px 16px", minHeight: 34, borderRadius: 999, border: "none", background: FIELD_BG, color: T.red, fontSize: 13, fontWeight: 500, cursor: "pointer", fontFamily: "inherit", display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 6 }}>
+                style={{ margin: "auto 18px 18px", ...BTN.md, border: "none", background: FIELD_BG, color: T.red, fontSize: 13, fontWeight: 500, cursor: "pointer", fontFamily: "inherit", display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 6 }}>
                 <Trash2 size={13} strokeWidth={1.75} /> Supprimer la photo
               </button>
             </div>
@@ -1096,7 +1097,7 @@ function FilterPills({ value, onChange, options, clearValue = "all" }) {
                aplat, sans cadre — une rangée de pilules cerclées faisait autant
                de traits que de filtres. */
             style={{
-              padding: "8px 16px", minHeight: 34, borderRadius: 999, border: "none",
+              ...BTN.md, border: "none",
               background: active ? T.text : FIELD_BG,
               color: active ? T.textInverted : T.textSub,
               fontSize: 13, fontWeight: 500, cursor: "pointer", fontFamily: "inherit",
@@ -1257,7 +1258,7 @@ function SessionCard({ session: s, onEdit, onDelete }) {
             );
           })}
           {s.notes && (
-            <div style={{ marginTop: 12, minHeight: 34, padding: "8px 16px", background: WRITING_BG, borderRadius: 10, fontSize: 13, color: T.textSub, lineHeight: 1.55 }}>
+            <div style={{ marginTop: 12, ...BTN.md, background: WRITING_BG, borderRadius: 10, fontSize: 13, color: T.textSub, lineHeight: 1.55 }}>
               {s.notes}
             </div>
           )}
@@ -1555,7 +1556,7 @@ function SessionForm({ form, setForm, editingId, onClose, onSave, onDelete, cust
         style={{ width: "min(640px, 100%)", maxHeight: "min(88vh, 820px)", display: "flex", flexDirection: "column", background: T.white, borderRadius: "var(--radius-modal)", boxShadow: "var(--elev-overlay)", overflow: "hidden", fontFamily: "var(--font-sans)", transform: `translate(${winPos.x}px, ${winPos.y}px)` }}>
         {/* Header — sert aussi de poignée pour déplacer la fenêtre */}
         <div onMouseDown={startWindowDrag}
-          style={{ position: "relative", minHeight: 34, padding: "8px 16px", display: "flex", alignItems: "center", gap: 10, cursor: "move", userSelect: "none" }}>
+          style={{ position: "relative", ...BTN.md, display: "flex", alignItems: "center", gap: 10, cursor: "move", userSelect: "none" }}>
           {/* Poignée de déplacement */}
           <div style={{
             position: "absolute", left: "50%", top: 7, transform: "translateX(-50%)",
@@ -1663,8 +1664,9 @@ function SessionForm({ form, setForm, editingId, onClose, onSave, onDelete, cust
                   <button key={d.id} type="button"
                     onClick={() => setForm({ ...form, discipline: d.id })}
                     style={{
-                      display: "flex", alignItems: "center", gap: 8,
-                      padding: "8px 16px", fontSize: 13, minHeight: 34, borderRadius: 999, border: "none",
+                      ...BTN.md,
+                      display: "flex", alignItems: "center",
+                      border: "none",
                       background: active ? `${d.color}1F` : FIELD_BG,
                       color: active ? T.text : T.textSub, cursor: "pointer", fontFamily: "inherit",
                       textAlign: "left",
@@ -1810,7 +1812,7 @@ function SessionForm({ form, setForm, editingId, onClose, onSave, onDelete, cust
                       </div>
                       <button type="button" onClick={() => addSet(ex.id)}
                         style={{
-                          marginTop: 8, padding: "8px 16px", minHeight: 34, borderRadius: 999,
+                          marginTop: 8, ...BTN.md,
                           border: "none", background: T.white,
                           color: T.textSub, fontSize: 13, fontWeight: 500, cursor: "pointer",
                           fontFamily: "inherit", display: "inline-flex", alignItems: "center", gap: 4,
@@ -1852,13 +1854,13 @@ function SessionForm({ form, setForm, editingId, onClose, onSave, onDelete, cust
               style={{ ...input(), minHeight: 28, padding: "5px 12px", fontSize: 13 }}
             />
             <button type="button" onClick={() => setPresetNamePrompt(null)}
-              style={{ padding: "8px 16px", minHeight: 34, borderRadius: 999, border: "none", background: "transparent", color: T.textSub, fontSize: 13, fontWeight: 500, cursor: "pointer", fontFamily: "inherit" }}>
+              style={{ ...BTN.md, border: "none", background: "transparent", color: T.textSub, fontSize: 13, fontWeight: 500, cursor: "pointer", fontFamily: "inherit" }}>
               Annuler
             </button>
             <button type="button" onClick={confirmSaveAsPreset}
               disabled={!(presetNamePrompt || "").trim()}
               style={{
-                padding: "8px 16px", minHeight: 34, borderRadius: 999, border: "none",
+                ...BTN.md, border: "none",
                 background: (presetNamePrompt || "").trim() ? T.text : FIELD_BG,
                 color: (presetNamePrompt || "").trim() ? T.textInverted : T.textSub,
                 fontSize: 13, fontWeight: 500,
@@ -1889,20 +1891,20 @@ function SessionForm({ form, setForm, editingId, onClose, onSave, onDelete, cust
                 Modifications enregistrées automatiquement
               </span>
               <button onClick={onClose}
-                style={{ padding: "8px 16px", minHeight: 34, borderRadius: 999, border: "none", background: FIELD_BG, color: T.text, fontSize: 13, fontWeight: 500, cursor: "pointer", fontFamily: "inherit" }}>
+                style={{ ...BTN.md, border: "none", background: FIELD_BG, color: T.text, fontSize: 13, fontWeight: 500, cursor: "pointer", fontFamily: "inherit" }}>
                 Fermer
               </button>
             </>
           ) : (
             <>
               <button onClick={onClose}
-                style={{ padding: "8px 16px", minHeight: 34, borderRadius: 999, border: "none", background: FIELD_BG, color: T.text, fontSize: 13, fontWeight: 500, cursor: "pointer", fontFamily: "inherit" }}>
+                style={{ ...BTN.md, border: "none", background: FIELD_BG, color: T.text, fontSize: 13, fontWeight: 500, cursor: "pointer", fontFamily: "inherit" }}>
                 Annuler
               </button>
               <button onClick={onSave}
                 disabled={!form.date}
                 style={{
-                  padding: "8px 16px", minHeight: 34, borderRadius: 999, border: "none",
+                  ...BTN.md, border: "none",
                   background: form.date ? T.text : FIELD_BG,
                   color: form.date ? T.textInverted : T.textSub,
                   fontSize: 13, fontWeight: 500,
@@ -1944,7 +1946,7 @@ function input() {
    « Sauver comme modèle ») : pilule à aplat, sans contour. */
 function softPill(enabled = true) {
   return {
-    padding: "8px 16px", minHeight: 34, borderRadius: 999, border: "none",
+    ...BTN.md, border: "none",
     background: FIELD_BG, color: T.textSub,
     fontSize: 12, fontWeight: 500,
     cursor: enabled ? "pointer" : "not-allowed", opacity: enabled ? 1 : 0.5,

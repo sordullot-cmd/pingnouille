@@ -18,6 +18,7 @@ import { Skeleton, SkeletonCircle } from "@/components/ui/Skeleton";
 import { hasFinePointer } from "@/lib/ui/pointer";
 import { FIELD_BG as DA_FIELD_BG } from "@/lib/ui/tokens";
 import { Modal as DAModal, PillButton as DAPillButton, Field as DAField, Input as DAInput, FIELD_FOCUS_RING as DA_FOCUS_RING } from "@/components/ui/form";
+import { BTN, BTN_ICON } from "@/lib/ui/buttons";
 
 // Palette centralisée (valeurs = var(--color-*), dark-aware). Toutes les clés
 // utilisées ici (white, border, border2, text, textSub, textMut, accent,
@@ -473,7 +474,7 @@ export default function DrivePage() {
             <button
               onClick={() => setSelectedProjectId(null)}
               title="Retour aux projets"
-              style={{ padding: "8px 16px", height: 34, minHeight: 34, borderRadius: 999, background: T.white, border: `1px solid ${T.border}`, color: T.text, fontSize: 13, fontWeight: 500, cursor: "pointer", fontFamily: "inherit", display: "inline-flex", alignItems: "center", gap: 6 }}>
+              style={{ ...BTN.md, background: T.white, border: `1px solid ${T.border}`, color: T.text, fontSize: 13, fontWeight: 500, cursor: "pointer", fontFamily: "inherit", display: "inline-flex", alignItems: "center", gap: 6 }}>
               <ArrowLeft size={14} strokeWidth={1.75} /> Projets
             </button>
             <h1 className="t-h2" style={{ color: T.text, margin: 0 }}>
@@ -492,12 +493,12 @@ export default function DrivePage() {
             <>
               <button
                 onClick={() => setShowMembersModal(true)}
-                style={{ padding: "8px 16px", height: 34, minHeight: 34, borderRadius: 999, background: T.white, border: `1px solid ${T.border}`, color: T.text, fontSize: 13, fontWeight: 500, cursor: "pointer", fontFamily: "inherit", display: "inline-flex", alignItems: "center", gap: 6 }}>
+                style={{ ...BTN.md, background: T.white, border: `1px solid ${T.border}`, color: T.text, fontSize: 13, fontWeight: 500, cursor: "pointer", fontFamily: "inherit", display: "inline-flex", alignItems: "center", gap: 6 }}>
                 <Users size={14} strokeWidth={1.75} /> Membres
               </button>
               <button
                 onClick={() => setShowShareModal(true)}
-                style={{ padding: "8px 16px", height: 34, minHeight: 34, borderRadius: 999, background: T.white, border: `1px solid ${T.border}`, color: T.text, fontSize: 13, fontWeight: 500, cursor: "pointer", fontFamily: "inherit", display: "inline-flex", alignItems: "center", gap: 6 }}>
+                style={{ ...BTN.md, background: T.white, border: `1px solid ${T.border}`, color: T.text, fontSize: 13, fontWeight: 500, cursor: "pointer", fontFamily: "inherit", display: "inline-flex", alignItems: "center", gap: 6 }}>
                 <Share2 size={14} strokeWidth={1.75} /> Partager
               </button>
               {selectedProject.owner_id === user?.id && (
@@ -505,7 +506,7 @@ export default function DrivePage() {
                   onClick={() => deleteProject(selectedProject.id)}
                   title="Supprimer le projet"
                   aria-label="Supprimer le projet"
-                  style={{ width: 34, height: 34, background: T.white, border: `1px solid ${T.border}`, color: T.textMut, cursor: "pointer", borderRadius: 999, display: "inline-flex", alignItems: "center", justifyContent: "center" }}
+                  style={{ ...BTN_ICON.md, background: T.white, border: `2px solid ${T.border}`, color: T.textMut, cursor: "pointer", display: "inline-flex", alignItems: "center", justifyContent: "center" }}
                   onMouseEnter={(e) => { e.currentTarget.style.background = T.redBg; e.currentTarget.style.color = T.red; e.currentTarget.style.borderColor = T.redBd; }}
                   onMouseLeave={(e) => { e.currentTarget.style.background = T.white; e.currentTarget.style.color = T.textMut; e.currentTarget.style.borderColor = T.border; }}
                 >
@@ -517,7 +518,7 @@ export default function DrivePage() {
           {/* "Nouveau projet" : toujours visible, dans les deux vues. */}
           <button
             onClick={requestNewProject}
-            style={{ padding: "8px 16px", height: 34, minHeight: 34, borderRadius: 999, background: T.text, border: `1px solid ${T.text}`, color: "#fff", fontSize: 13, fontWeight: 500, cursor: "pointer", fontFamily: "inherit", display: "inline-flex", alignItems: "center", gap: 6 }}>
+            style={{ ...BTN.md, background: T.text, border: `1px solid ${T.text}`, color: "#fff", fontSize: 13, fontWeight: 500, cursor: "pointer", fontFamily: "inherit", display: "inline-flex", alignItems: "center", gap: 6 }}>
             <Plus size={14} strokeWidth={2} /> Nouveau projet
           </button>
         </div>
@@ -2243,7 +2244,7 @@ function ProjectDetail({ project, currentUserId, onProjectRenamed }) {
               <div style={{ marginTop: 14, pointerEvents: "auto", display: "inline-flex" }}>
                 <button
                   onClick={() => genericInputRef.current?.click()}
-                  style={{ padding: "8px 16px", minHeight: 34, borderRadius: 999, background: T.text, border: `1px solid ${T.text}`, color: "#fff", fontSize: 13, fontWeight: 500, cursor: "pointer", fontFamily: "inherit", display: "inline-flex", alignItems: "center", gap: 8 }}
+                  style={{ ...BTN.md, background: T.text, border: `1px solid ${T.text}`, color: "#fff", fontSize: 13, fontWeight: 500, cursor: "pointer", fontFamily: "inherit", display: "inline-flex", alignItems: "center", gap: 8 }}
                 >
                   <Upload size={15} strokeWidth={1.75} /> Importer un fichier
                 </button>
@@ -2970,7 +2971,7 @@ function ImageLightbox({ url, alt, onClose, onDownload }) {
         title="Fermer (Ã‰chap)"
         style={{
           position: "absolute", top: 16, right: 16, zIndex: 2,
-          width: 34, height: 34, borderRadius: 999,
+          width: 34, ...BTN.md,
           background: "rgba(255,255,255,0.12)", border: "1px solid rgba(255,255,255,0.2)",
           color: "#fff", cursor: "pointer",
           display: "inline-flex", alignItems: "center", justifyContent: "center",
@@ -2988,7 +2989,7 @@ function ImageLightbox({ url, alt, onClose, onDownload }) {
           title="TÃ©lÃ©charger l'image originale"
           style={{
             position: "absolute", top: 16, right: 60, zIndex: 2,
-            height: 34, padding: "8px 16px", borderRadius: 999,
+            ...BTN.md,
             background: "rgba(255,255,255,0.12)", border: "1px solid rgba(255,255,255,0.2)",
             color: "#fff", cursor: "pointer", fontSize: 12, fontWeight: 500,
             fontFamily: "inherit",
@@ -3189,7 +3190,7 @@ function ShareModal({ project, onClose }) {
         </div>
 
         <button onClick={generateLink} disabled={creating}
-          style={{ padding: "8px 16px", minHeight: 34, borderRadius: 999, background: T.text, color: "#fff", border: "none", fontSize: 13, fontWeight: 500, cursor: "pointer", fontFamily: "inherit", display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 6 }}>
+          style={{ ...BTN.md, background: T.text, color: "#fff", border: "none", fontSize: 13, fontWeight: 500, cursor: "pointer", fontFamily: "inherit", display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 6 }}>
           <Share2 size={14} strokeWidth={1.75} /> {creating ? "GÃ©nÃ©rationâ€¦" : "GÃ©nÃ©rer un lien"}
         </button>
 
@@ -3197,7 +3198,7 @@ function ShareModal({ project, onClose }) {
           <div style={{ display: "flex", gap: 6, alignItems: "center", padding: "6px 6px 6px 14px", border: "none", borderRadius: 999, background: DA_FIELD_BG }}>
             <input readOnly value={link} style={{ flex: 1, border: "none", outline: "none", background: "transparent", fontSize: 11, fontFamily: "monospace", color: T.text }} />
             <button onClick={copy}
-              style={{ padding: "8px 16px", minHeight: 34, borderRadius: 999, background: copied ? T.green : T.text, color: "#fff", border: "none", fontSize: 13, fontWeight: 500, cursor: "pointer", display: "inline-flex", alignItems: "center", gap: 4, flexShrink: 0 }}>
+              style={{ ...BTN.md, background: copied ? T.green : T.text, color: "#fff", border: "none", fontSize: 13, fontWeight: 500, cursor: "pointer", display: "inline-flex", alignItems: "center", gap: 4, flexShrink: 0 }}>
               {copied ? <><Check size={11} /> CopiÃ©</> : <><Copy size={11} /> Copier</>}
             </button>
           </div>
@@ -3522,7 +3523,7 @@ function AudioPlayer({ url }) {
             onClick={toggle}
             title={playing ? "Pause" : "Lecture"}
             style={{
-              width: 34, height: 34, borderRadius: 999,
+              width: 34, ...BTN.md,
               background: T.text, color: "#fff", border: "none",
               cursor: "pointer", flexShrink: 0,
               display: "inline-flex", alignItems: "center", justifyContent: "center",
