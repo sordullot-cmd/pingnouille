@@ -262,8 +262,17 @@ export default function App() {
           qui la remplace, appliqué au conteneur SCROLLABLE et non au cadre :
           le contenu part ainsi du bord de la fenêtre, et un bloc pleine largeur
           peut reprendre cette réserve pour passer derrière la barre. Remise à 0
-          en mobile, où la barre est un tiroir (cf. globals.css). */}
-      <div className="tr4de-root" style={{display:"flex",minHeight:"100vh",background:"var(--color-bg-subtle, #F5F5F5)","--shell-left":`${sidebarWidth + 12}px`}}>
+          en mobile, où la barre est un tiroir (cf. globals.css).
+
+          Fond BLANC, et c'est le principe premier de la DA : le blanc n'est pas
+          un fond, c'est la structure — 82,6 % des pixels des écrans de
+          référence, sans un seul gris de remplissage. Ce sont ici et sur la
+          barre du haut les DEUX seuls endroits qui posaient le gris de page ;
+          `--color-bg-subtle` elle-même ne change pas de valeur, elle habille
+          encore une douzaine de vues hors coquille et son rôle s'inverse en
+          thème sombre. Les blocs se détachent maintenant par leur bordure de 2
+          et leur arête basse, pas par un gris derrière eux. */}
+      <div className="tr4de-root" style={{display:"flex",minHeight:"100vh",background:"var(--color-bg)","--shell-left":`${sidebarWidth + 12}px`}}>
         <Sidebar
           mobileOpen={mobileNavOpen}
           onMobileClose={() => setMobileNavOpen(false)}
@@ -302,7 +311,7 @@ export default function App() {
               pages, que se règle cette marge — le conteneur scrollable juste en
               dessous est à padding-top 0. Les media queries mobiles rendent à la
               barre son padding vertical, où le hamburger doit tenir. */}
-          <div className="tr4de-topbar" style={{flexShrink:0,zIndex:10,background:"var(--color-bg-subtle, #F5F5F5)",padding:"10px 28px 10px calc(var(--shell-left, 0px) + 28px)",display:"flex",alignItems:"center",gap:12,fontFamily:"var(--font-sans)"}}>
+          <div className="tr4de-topbar" style={{flexShrink:0,zIndex:10,background:"var(--color-bg)",padding:"10px 16px 10px calc(var(--shell-left, 0px) + 16px)",display:"flex",alignItems:"center",gap:12,fontFamily:"var(--font-sans)"}}>
             <button
               type="button"
               className="tr4de-hamburger"

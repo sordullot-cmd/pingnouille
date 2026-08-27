@@ -62,6 +62,18 @@
      ressort donc en blanc, ce qui la sépare du contenu sans lui poser de trait. */
   --color-bg-subtle: #F5F5F5; /* entre Polar et Swan */
   --color-card-bg: #FFFFFF;
+  /* Creux : remplissage d'un champ de saisie, piste d'un segmenté, boîte
+     d'icône d'un état vide, fond d'un bouton désactivé. Polar #F7F7F7, la
+     valeur de la charte.
+
+     Variable NEUVE et non `--color-bg-subtle` réemployée, alors que les deux
+     sont des gris clairs : `--color-bg-subtle` a une douzaine de consommateurs
+     (app/login, app/not-found, CommandPalette, Skeleton, LegalLayout,
+     SportPage…) et son rôle S'INVERSE en thème sombre — elle y vaut #0F0F10,
+     plus foncé que les cartes, parce qu'elle habille la nav. La repeindre
+     retournerait le thème sombre de ces vues. Un creux est l'inverse : plus
+     clair que la carte en clair, à peine plus clair qu'elle en sombre. */
+  --color-surface-creuse: #F7F7F7; /* Polar */
   --color-hover-bg: #F0F0F0;
   --color-active-bg: #EBEBEB;
 
@@ -113,12 +125,23 @@
   --color-segment-track: rgba(28, 31, 33, 0.05);
   /* Ligne de tableau mise en avant */
   --color-row-highlight: rgba(13, 13, 13, 0.04);
-  /* Ombre des cartes de la nouvelle DA (très douce, pas de bordure) */
-  --elev-card: 0 0 2.2px 0 rgba(0, 0, 0, 0.07);
-  --elev-pill: 0 0 1.1px rgba(0, 0, 0, 0.07);
-  /* Texte posé sur un aplat de couleur pleine (badge vert/rouge) : reste blanc
-     dans les deux thèmes, l'aplat étant saturé de part et d'autre. */
+  /* Texte posé sur une pastille dont l'app CHOISIT l'aplat sombre (vignette
+     d'instrument, badge de marque) : blanc dans les deux thèmes. Trente
+     consommateurs, dont `T.symbolBadgeText` — cette variable ne change pas. */
   --color-on-solid: #FFFFFF;
+  /* Encre posée sur un aplat de couleur PLEINE de la charte (bouton primaire,
+     bouton de succès, bouton destructif).
+
+     Écart délibéré avec Duolingo, imposé par le contraste : la référence pose
+     du blanc sur ses aplats, et aucun de ces couples ne passe — blanc sur Owl
+     2,09:1, sur Macaw 2,44:1, sur Fox 2,18:1, sur Bee 1,55:1. L'encre, elle,
+     rend 9,30:1 sur Owl et 12,51:1 sur Bee, et reste dans la charte.
+
+     La règle n'est PAS inconditionnelle : l'accent est un réglage utilisateur
+     libre (« Charbon & or » vaut #232323, sur lequel cette encre rend 1,2:1).
+     Sur un aplat d'accent, l'encre se choisit à l'exécution — cf. `readableInk`
+     dans lib/ui/color.ts. Cette variable ne vaut que pour les aplats FIXES. */
+  --color-encre-sur-couleur: #0D0D0D;
   /* Voile derrière les modales. */
   --color-scrim: rgba(0, 0, 0, 0.45);
   /* Opacité des séries secondaires d'un graphique multi-comptes. */
@@ -164,6 +187,13 @@
   --color-warning: #FF9600;
   --color-danger: #FF4B4B;
   --color-info: #CE82FF;
+  /* Sélection, état actif, action neutre, anneau de focus. C'est le rôle le
+     plus employé de l'interface : sur les écrans de leçon de la référence,
+     Macaw couvre presque quatre fois la surface de Feather Green. Le vert,
+     lui, ne dit plus que le succès — validation, P&L positif, progression.
+     Un NOM de rôle posé sur `--color-blue`, pas une seconde valeur : Macaw
+     n'existe qu'une fois dans ce fichier. */
+  --color-action: var(--color-blue);
 
   /* Aplats et lisérés teintés (badges P&L, pastilles de statut) : la
      principale DILUÉE, et non un pastel choisi à côté. C'est ce qui garantit
@@ -224,6 +254,14 @@
   --fw-medium: 500;   /* labels & actions */
   --fw-semibold: 600; /* titres & valeurs */
   --fw-bold: 700;     /* chiffres héros */
+  /* Rôle « display ». La référence emploie deux familles — Feather Bold pour
+     le display, Duolingo Sans pour l'UI —, toutes deux propriétaires et donc
+     inutilisables. Le substitut est sourcé par son propre code : quand Feather
+     Bold ne couvre pas une langue (russe, ukrainien, vietnamien), l'app fait
+     pointer « feather900 » vers sa police d'UI en graisse 900. La référence
+     remplace donc elle-même son display par une graisse. Outfit en 800 est le
+     nôtre : zéro police ajoutée, zéro dépendance. */
+  --fw-display: 800;
 
   /* Espacement — une seule progression */
   --space-1: 4px;
@@ -233,15 +271,46 @@
   --space-6: 24px;
   --space-8: 32px;
 
-  /* Rayons — un par rôle */
-  --radius-field: 6px;   /* inputs, petits chips */
-  --radius-card:  10px;  /* cartes, panneaux */
-  --radius-modal: 14px;  /* modales, grands panneaux */
+  /* Rayons — un par rôle. Relevé : le CTA plein mesure 42 px de rayon sur
+     173 px de hauteur (24,3 %), soit 12 pt à l'échelle. Les trois valeurs
+     d'avant (6 / 10 / 14) montent donc chacune d'un cran de 4. */
+  --radius-field: 8px;   /* inputs, petits chips */
+  --radius-card:  12px;  /* cartes, boutons, panneaux */
+  --radius-modal: 16px;  /* modales, grands panneaux */
   --radius-pill:  999px;
 
-  /* Élévation — 3 niveaux */
-  --elev-rest:    0 1px 2px rgba(20,30,35,.06);
-  --elev-hover:   0 4px 12px rgba(20,30,35,.10);
+  /* === ÉLÉVATION : une arête, pas une ombre ======================
+     Sur la référence, chaque bouton et chaque carte porte une ARÊTE BASSE en
+     aplat solide, d'un ton plus foncé de sa propre famille — owl → treeFrog,
+     macaw → whale, blanc → swan. C'est ce qui donne l'effet « touche de
+     clavier » : le bloc a une épaisseur physique, il n'flotte pas.
+
+     Mesuré sur la capture de 758 px (échelle 2 px/pt) : CTA 44 de corps pour
+     4 d'arête (9,1 %), carte de liste 52 pour 6 (11,5 %).
+
+     Jamais de flou, jamais de décalage horizontal : `0 <arête>px 0 <couleur>`.
+     Une ombre floue ne survit que sous ce qui FLOTTE vraiment — modale, menu,
+     popover —, d'où `--elev-overlay`, seul rescapé des cinq niveaux d'avant.
+
+     Si un bloc ne se détache pas : Swan sur blanc ne rend que 1,19:1, et ce
+     qui rend la carte lisible sur la référence est la bordure de 2 ET l'arête
+     de 6 ensemble. Le repli est nommé et reste dans la charte — Hare #AFAFAF
+     (2,19:1) —, il se change ICI, une fois, pour tous les blocs. Jamais au cas
+     par cas, et surtout pas en inventant un gris intermédiaire. */
+  --color-arete:           #E5E5E5; /* Swan       — surfaces neutres */
+  --color-arete-action:    #1899D6; /* Whale      */
+  --color-arete-succes:    #58A700; /* Tree Frog  */
+  --color-arete-alerte:    #EA2B2B; /* Fire Ant   */
+  --color-arete-attention: #CD7900; /* Guinea Pig */
+  --color-arete-info:      #9069CD; /* Betta      */
+
+  --arete-carte:  0 6px 0 var(--color-arete);
+  /* Variante neutre. Une variante colorée RECOMPOSE la valeur avec sa propre
+     couleur (`0 4px 0 var(--color-arete-action)`) : la couleur reste au
+     composant, qui est le seul à connaître sa variante. */
+  --arete-bouton: 0 4px 0 var(--color-arete);
+
+  /* La seule ombre floue qui reste : ce qui flotte vraiment. */
   --elev-overlay: 0 16px 40px rgba(20,30,35,.18);
 
   /* Layout */
@@ -256,6 +325,8 @@
   --color-bg: #1A1A1B;          /* contenu principal (cards) */
   --color-bg-subtle: #0F0F10;   /* nav/sidebar — PLUS FONCÉ que les pages */
   --color-card-bg: #1A1A1B;
+  /* Le creux reste un creux : à peine détaché de la carte, dans l'autre sens. */
+  --color-surface-creuse: #202022;
   --color-hover-bg: #242424;
   --color-active-bg: #2E2E2E;
 
@@ -276,9 +347,14 @@
   /* `--color-kraken*` n'est plus redéfini ici : il suit `--accent-2` /
      `--accent-tint`, qui ont déjà leur déclinaison sombre en tête de fichier. */
 
-  /* Élévation plus marquée sur fond sombre */
-  --elev-rest:    0 1px 2px rgba(0,0,0,.4);
-  --elev-hover:   0 4px 14px rgba(0,0,0,.5);
+  /* Seule l'arête NEUTRE est redéfinie : les cinq arêtes colorées sont les
+     couleurs de la charte, qui rendent déjà 5 à 11:1 sur #1A1A1B — une seule
+     valeur par couleur dans les deux thèmes, comme le reste du fichier.
+     `--arete-carte` et `--arete-bouton` n'ont pas à être redéfinis non plus :
+     ils lisent `--color-arete`, qui change ici. */
+  --color-arete: #3A3A3A;
+
+  /* La couche flottante reste plus marquée sur fond sombre. */
   --elev-overlay: 0 16px 44px rgba(0,0,0,.6);
 
   /* Aplats teintés en sombre : même construction qu'en clair — la principale
@@ -319,8 +395,6 @@
   --color-cal-neg-surface: color-mix(in srgb, #FF4B4B 11%, transparent);
   --color-segment-track: rgba(255, 255, 255, 0.06);
   --color-row-highlight: rgba(255, 255, 255, 0.05);
-  --elev-card: 0 0 0 1px rgba(255, 255, 255, 0.05);
-  --elev-pill: 0 0 0 1px rgba(255, 255, 255, 0.08);
   --color-scrim: rgba(0, 0, 0, 0.62);
   /* Les traits fins passent moins bien sur fond sombre. */
   --opacity-series-bg: 0.45;
@@ -860,8 +934,12 @@ html, body, * { scrollbar-width: thin; scrollbar-color: rgba(0,0,0,0.18) transpa
    Anneau de focus au CLAVIER uniquement (:focus-visible ne se déclenche pas
    au clic souris), donc aucune gêne esthétique à la souris tout en restant
    conforme WCAG 2.4.7. */
-:focus-visible {
-  outline: 2px solid var(--color-info);
+:f:focus-visible {
+  /* À l'ACTION et non à `--color-info` : le violet Beetle est la couleur que la
+     DA attribue à l'information, la lire comme « vous êtes ici » demandait de
+     connaître l'exception. La mécanique ne bouge pas — 2 px, décalé de 2,
+     clavier seulement. */
+  outline: 2px solid var(--color-action);
   outline-offset: 2px;
   border-radius: 4px;
 }
@@ -894,6 +972,16 @@ html, body, * { scrollbar-width: thin; scrollbar-color: rgba(0,0,0,0.18) transpa
      un chargement plus court à durée réelle identique — d'où 0,8 s. */
   --dur-spin: 800ms;
   --dur-shimmer: 1400ms;
+  /* Moment de récompense — objectif atteint, série tenue, jalon, passage de
+     niveau. Un par écran au maximum.
+     Relevé image par image sur `officiel-label-hard-exercise_duolingo-app.gif`
+     (dossier duolingo-app/animations) : 17 frames à 30 fps entre l'apparition
+     et l'immobilité, pic d'amplitude aux frames 4 à 9 puis décroissance —
+     c'est-à-dire un dépassement puis stabilisation, le profil de
+     `--ease-spring`, qu'il faut donc lui associer. Cette durée REMPLACE les
+     quatre durées de célébration écrites en dur plus bas (620 / 700 / 700 /
+     900 ms), dont trois disparaissent avec leurs animations. */
+  --dur-celebration: 570ms;
 
   /* === Transition d'état d'un élément interactif ===
      Remplace les `transition: all` semés dans le site (33 occurrences, 20
