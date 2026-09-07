@@ -1,0 +1,10 @@
+# Ce que `vercel deploy` ne doit pas téléverser. Sans ce fichier la CLI envoie
+# tout le dossier courant — 2 Go ici — et l'upload échoue avant le build.
+# Vercel réinstalle les dépendances et rebuild de son côté : rien de tout ceci
+# n'a besoin de faire le voyage.
+node_modules
+.next
+
+# La cible de compilation Rust : de loin le plus gros, et sans rapport avec le
+# front. La coquille Tauri se build à part (workflow build-macos.yml).
+src-tauri/target
